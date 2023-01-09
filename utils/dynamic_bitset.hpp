@@ -34,14 +34,17 @@ class DynamicBitset {
     
     
     
-    // Bitwise opperations
+    // Bitwise opperations (NOT YET USABLE FOR OPERATION WITH DIFFERENT SIZES)
 
     // applys & operation on each bit of self with other bitset
-    DynamicBitset& and(const DynamicBitset& other);
+    static void and(const DynamicBitset& src,
+        const DynamicBitset& target, const DynamicBitset& dest);
     // applys | operation on each bit of self with other bitset
-    DynamicBitset& or(const DynamicBitset& other);
+    static void or(const DynamicBitset& src,
+        const DynamicBitset& target, const DynamicBitset& dest);
     // applys ^ operation on each bit of self with other bitset
-    DynamicBitset& xor(const DynamicBitset& other);
+    static void xor(const DynamicBitset& src,
+        const DynamicBitset& target, const DynamicBitset& dest);
     // // Shift each bit left by n filling in with 0
     // DynamicBitset& shiftLeft(int n);
     // // shift each bit right by n filling in with 0
@@ -50,7 +53,12 @@ class DynamicBitset {
     // // 10110010 -> 11011001 | 00110010 -> 00011001 
     // DynamicBitset& shiftARight(n);
     // Invert each bit of bitset
-    DynamicBitset& not();
+    static void not(const DynamicBitset& src, const DynamicBitset& dest);
+
+    DynamicBitset& operator& (const DynamicBitset& other);
+    DynamicBitset& operator| (const DynamicBitset& other);
+    DynamicBitset& operator^ (const DynamicBitset& other);
+    DynamicBitset& operator~ ();
 
 
 
