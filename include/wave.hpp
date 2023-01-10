@@ -8,7 +8,6 @@
 #include <forward_list>
 
 
-class Rule
 
 class Tile {
     DynamicBitset states_; // bitset of possible states of tile
@@ -29,6 +28,12 @@ class Tile {
 
     size_t collapse();
 
+    void enforceRule(Wave::Coords position, Array2D<Tile*> &waveGrid_,
+        std::vector<DynamicBitset[4]> &rules_, DynamicBitset &rule_);
+
+    void propagate(Wave::Coords position, Array2D<Tile*> &waveGrid_,
+        std::vector<DynamicBitset[4]> &rules_);
+
     size_t type();
 
     void setInternalStates_DEBUG(std::bitset<numStates> states) {states_ = states;}
@@ -40,6 +45,8 @@ class Wave {
     Array2D<Tile*> waveGrid_;
     std::forward_list<Tile*> entropySorted_; // Tiles in grid sorted by entropy 
     const double* weights_;
+    enum {UP=0, RIGHT=1, DOWN=2, LEFT=3};
+    std::vector<DynamicBitset[4]> rules_;
 
     public:
 

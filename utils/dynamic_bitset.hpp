@@ -64,6 +64,8 @@ class DynamicBitset {
     DynamicBitset& operator|= (const DynamicBitset& other);
     DynamicBitset& operator^= (const DynamicBitset& other);
 
+    operator bool() const;
+
 
 
 

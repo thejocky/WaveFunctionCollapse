@@ -112,3 +112,10 @@ DynamicBitset& DynamicBitset::operator^= (const DynamicBitset& other) {
     xor(*this, other, *this);
     return *this;
 }
+
+operator bool() {
+    for (auto i = 0; i < numBlocks_; i++) {
+        if (data_[i]) return true;
+    }
+    return false;
+}

@@ -4,7 +4,6 @@
 #include <tuple>
 #include <cmath>
 
-template <size_t numStates>
 Tile<numStates>::Tile (const double* weights, size_t numberOfStates) :
     states_(numberOfStates), weights_(weights),
     collapsed_(false), finalState_(false)
@@ -12,8 +11,6 @@ Tile<numStates>::Tile (const double* weights, size_t numberOfStates) :
     updateEntropy();
 }
 
-
-template <size_t numStates>
 double Tile::updateEntropy() {
     double weightSum_ = 0;
     double sumXLog = 0;
@@ -29,7 +26,6 @@ double Tile::updateEntropy() {
 
 template <size_t numStates>
 size_t Tile::collapse() {
-
     collapsed_ = true;
 
     // Generate random number in range 0-weightSum
@@ -39,7 +35,7 @@ size_t Tile::collapse() {
     int i = -1;
     while (number > 0) {
         i++;
-        if (states_.bit(i) == true) {
+        if (states_.bit(i)) {
             number -= weights_[i];
             states_.setBit(i, false);
         }
@@ -48,15 +44,18 @@ size_t Tile::collapse() {
     finalState_ = i;
     i++;
     while (i < numStates) {
-        if (states_.bit(i) == true)
+        if (states_.bit(i)
             states_.setBit(i, false);
         i++;
     }
-
-
 }
 
-template <size_t numStates>
+void Tile::enforceRule(Wave::Coords position, Array2D<Tile*> &waveGrid_,
+        std::vector<DynamicBitset[4]> &rules_, DynamicBitset &rule_) {
+    bool changed = false; // if rule changes state
+    if (states & (~))
+}
+
 size_t Tile::type() {
     if (collapsed_) {
         return finalState_;
@@ -123,7 +122,6 @@ bool Wave::collapse() {
     if (collapsed = -1) return false;
     return true;
 }
-
 
 
 #include <iostream>
