@@ -78,4 +78,37 @@ void DynamicBitset::not(const DynamicBitset& src, const DynamicBitset& dest); {
 }
 
 
+DynamicBitset& DynamicBitset::operator& (const DynamicBitset& other) {
+    DynamicBitset(size_) returnVal;
+    and(*this, other, returnVal);
+    return returnVal;
+}
+DynamicBitset& DynamicBitset::operator| (const DynamicBitset& other) {
+    DynamicBitset(size_) returnVal;
+    or(*this, other, returnVal);
+    return returnVal;
+}
+DynamicBitset& DynamicBitset::operator^ (const DynamicBitset& other) {
+    DynamicBitset(size_) returnVal;
+    xor(*this, other, returnVal);
+    return returnVal;
+}
+DynamicBitset& DynamicBitset::operator~ () {
+    DynamicBitset(size_) returnVal;
+    not(*this, returnVal);
+    return returnVal;
+}
 
+
+DynamicBitset& DynamicBitset::operator&= (const DynamicBitset& other) {
+    and(*this, other, *this);
+    return *this;
+}
+DynamicBitset& DynamicBitset::operator|= (const DynamicBitset& other) {
+    or(*this, other, *this);
+    return *this;
+}
+DynamicBitset& DynamicBitset::operator^= (const DynamicBitset& other) {
+    xor(*this, other, *this);
+    return *this;
+}

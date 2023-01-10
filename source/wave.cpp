@@ -19,7 +19,7 @@ double Tile::updateEntropy() {
     double sumXLog = 0;
 
     for (int i = 0; i < numStates; i++) {
-        if (states_[i] == true) {
+        if (states_.bit(i) == true) {
             weightSum_ += weights_[i];
             sumXLog += weights_[i] * log(weights_[i]);
         }
@@ -28,7 +28,7 @@ double Tile::updateEntropy() {
 }
 
 template <size_t numStates>
-std::size_t Tile::collapse() {
+size_t Tile::collapse() {
 
     collapsed_ = true;
 
@@ -39,17 +39,17 @@ std::size_t Tile::collapse() {
     int i = -1;
     while (number > 0) {
         i++;
-        if (states_[i] == true) {
+        if (states_.bit(i) == true) {
             number -= weights_[i];
-            states_[i] = false;
+            states_.setBit(i, false);
         }
     } 
-    states_[i] = true;
+    states_.setBit(i, true);
     finalState_ = i;
     i++;
     while (i < numStates) {
-        if (states_[i] == true)
-            states_[i] = false;
+        if (states_.bit(i) == true)
+            states_.setBit(i, false);
         i++;
     }
 
@@ -57,7 +57,7 @@ std::size_t Tile::collapse() {
 }
 
 template <size_t numStates>
-std::size_t Tile::type() {
+size_t Tile::type() {
     if (collapsed_) {
         return finalState_;
     }
@@ -68,7 +68,7 @@ std::size_t Tile::type() {
 
 
 
-Wave::Wave(std::size_t width, std::size_t height, std::size_t states, const double* weights) :
+Wave::Wave(size_t width, size_t height, size_t states, const double* weights) :
     waveGrid_(height, width), weights_(weights)
     {
         Tile* = tile;
@@ -82,41 +82,47 @@ Wave::Wave(std::size_t width, std::size_t height, std::size_t states, const doub
 
 
 
-// // Returns tile with the lowest entropy in grid
-// Wave::Coords Wave::lowestEntropy() {
-//     std::vector<Coords> stack;
-//     double highestEntropy = 0;
-//     for (size_t i = 0; i < waveGrid_.yLen(); i++) {
-//         for (size_t j = 0; j < waveGrid_.xLen(); j++) {
-//             if (waveGrid_[i][j].entropy() > highestEntropy) {
-//                 highestEntropy = waveGrid_[i][j].entropy();
-//                 stack.clear();
-//                 stack.push_back({i,j});
-//             } else if (waveGrid_[i][j] == highestEntropy) {
-//                 stack.push_back({i,j});
-//             }
-//         }
-//     }
-// }
+// Returns tile with the lowest entropy in grid
+Wave::Coords Wave::lowestEntropy() {
 
-// // Callapse tile based on weights
-// bool Wave::collapseTile(Coords position) {}
+    std::vector<Coords> stack;
+    double highestEntropy = -1;
+    for (size_t i = 0; i < waveGrid_.yLen(); i++) {
+        for (size_t j = 0; j < waveGrid_.xLen(); j++) {
+            if (waveGrid_[i][j].entropy() > highestEntropy) {
+                highestEntropy = waveGrid_[i][j].entropy();
+                stack.clear();
+                stack.push_back({i,j});
+            } else if (waveGrid_[i][j] == highestEntropy) {
+                stack.push_back({i,j});
+            }
+        }
+    }
+    if (stack.size() == 1) return stack[0];
+    double randomNum = ((double)rand() / RAND_MAX) * stack.size();
+    return stack[std::floor(randNum)];
+}
 
-// // Propigate any changes from collapsed tile
-// bool Wave::propigate() {}
+// Callapse tile based on weights
+bool Wave::collapseTile(Coords position) {
+    
+}
 
-// // collapse lowest entropy tile until full grid is collapsed or collision occurs
-// bool Wave::collapse() {
-//     int collapsed = false;
-//     Coords location;
-//     while (!collapsed) {
-//         location = lowestEntropy();
-//         collapseTile(location);
-//         collapsed = !propigate();
-//     }
-//     if (collapsed = -1) return false;
-//     return true;
-// }
+// Propigate any changes from collapsed tile
+bool Wave::propigate() {}
+
+// collapse lowest entropy tile until full grid is collapsed or collision occurs
+bool Wave::collapse() {
+    int collapsed = false;
+    Coords location;
+    while (!collapsed) {
+        location = lowestEntropy();
+        collapseTile(location);
+        collapsed = !propigate();
+    }
+    if (collapsed = -1) return false;
+    return true;
+}
 
 
 

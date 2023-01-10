@@ -8,6 +8,8 @@
 #include <forward_list>
 
 
+class Rule
+
 class Tile {
     DynamicBitset states_; // bitset of possible states of tile
     const double* weights_;    // Weights for each states
@@ -15,8 +17,6 @@ class Tile {
     double entropy_;
     bool collapsed_;
     size_t finalState_; // Once collapsed is the final state
-
-
 
 
     Tile (const double* weights, size_t numberOfStates);
@@ -27,9 +27,9 @@ class Tile {
     double entropy() {return entropy_;}
 
 
-    std::size_t collapse();
+    size_t collapse();
 
-    std::size_t type();
+    size_t type();
 
     void setInternalStates_DEBUG(std::bitset<numStates> states) {states_ = states;}
 
@@ -44,9 +44,9 @@ class Wave {
     public:
 
     // Simple struct used to pass coords between methods
-    struct Coords {std::size_t x; std::size_t y;};
+    struct Coords {int x; int y;};
 
-    Wave(std::size_t width, std::size_t height, std::size_t states, const double* weights);
+    Wave(size_t width, size_t height, size_t states, const double* weights);
     
     ~Wave() {}
 
