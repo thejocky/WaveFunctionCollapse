@@ -53,7 +53,14 @@ size_t Tile::collapse() {
 void Tile::enforceRule(Wave::Coords position, Array2D<Tile*> &waveGrid_,
         std::vector<DynamicBitset[4]> &rules_, DynamicBitset &rule_) {
     bool changed = false; // if rule changes state
-    if (states & (~))
+    if (states & (~rule)) changed = true;
+    states &= rule;
+    if (!changed) return;
+    // Propagating changes
+    DynamicBitset ruleUp(states.size());
+    for (int i = 0; i < states.size(); i++) {
+        ruleUp |= rules_[i]
+    }
 }
 
 size_t Tile::type() {
