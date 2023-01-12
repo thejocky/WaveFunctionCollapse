@@ -41,11 +41,16 @@ class Tile {
 };
 
 class Wave {
+
+    public:
+    enum {UP=0, RIGHT=1, DOWN=2, LEFT=3};
+
+    private:
     
     Array2D<Tile*> waveGrid_;
     std::forward_list<Tile*> entropySorted_; // Tiles in grid sorted by entropy 
     const double* weights_;
-    enum {UP=0, RIGHT=1, DOWN=2, LEFT=3};
+    
     std::vector<DynamicBitset[4]> rules_;
 
     public:

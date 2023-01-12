@@ -50,17 +50,41 @@ size_t Tile::collapse() {
     }
 }
 
-void Tile::enforceRule(Wave::Coords position, Array2D<Tile*> &waveGrid_,
-        std::vector<DynamicBitset[4]> &rules_, DynamicBitset &rule_) {
+void Tile::enforceRule(Wave::Coords position, Array2D<Tile*> &waveGrid,
+        std::vector<DynamicBitset[4]> &rules, DynamicBitset &enforcedRule) {
     bool changed = false; // if rule changes state
-    if (states & (~rule)) changed = true;
-    states &= rule;
+    if (states & (~enforcedRule)) changed = true;
+    states &= enforcedRule;
     if (!changed) return;
-    // Propagating changes
+    
+    propagate(position, waveGrid, rules);
+}
+
+void propagate(Wave::Coords position, Array2D<Tile*> &waveGrid,
+        std::vector<DynamicBitset[4]> &rules) {
     DynamicBitset ruleUp(states.size());
+    DynamicBitset ruleDown(states.size());
+    DynamicBitset ruleLeft(states.size());
+    DynamicBitset ruleRight(states.size());
     for (int i = 0; i < states.size(); i++) {
-        ruleUp |= rules_[i]
+        ruleUp |= rules[i][Wave::UP];
+        ruleDown |= rules[i][Wave::DOWN];
+        ruleLeft |= rules[i][Wave::LEFT];
+        ruleRight |= rules[i][Wave::RIGHT];
     }
+    
+    if (position.y < waveGrid.yLen()-1)
+        waveGrid[position.x][position.y+1].enforceRule({},
+                                            waveGrid, rules, ruleUp);
+    if (position.y > 0)
+        waveGrid[position.x][position.y-1].enforceRule(position,
+                                            waveGrid, rules, ruleDown);
+    if (position.x > 0)
+        waveGrid[position.x][position.y-1].enforceRule(position,
+                                            waveGrid, rules, ruleLeft);
+    if (position.x < waveGrid.xLen()-1)
+        waveGrid[position.x][position.y+1].enforceRule(position,
+                                            waveGrid, rules, ruleRight);
 }
 
 size_t Tile::type() {
@@ -76,14 +100,13 @@ size_t Tile::type() {
 
 Wave::Wave(size_t width, size_t height, size_t states, const double* weights) :
     waveGrid_(height, width), weights_(weights)
-    {
-        Tile* = tile;
-        for (int y = 0; y < waveGrid_.yLen) {
-            for (int x = 0; x < waveGrid_.xLen) {
-                tile = new Tile(weights_)
-            }
+{
+    for (int y = 0; y < waveGrid_.yLen) {
+        for (int x = 0; x < waveGrid_.xLen) {
+            waveGrid_[y][x] = new Tile(weights_)
         }
     }
+}
 
 
 
@@ -106,12 +129,14 @@ Wave::Coords Wave::lowestEntropy() {
     }
     if (stack.size() == 1) return stack[0];
     double randomNum = ((double)rand() / RAND_MAX) * stack.size();
+    if (highestEntropy == 0) collapsed_ = true;
     return stack[std::floor(randNum)];
 }
 
 // Callapse tile based on weights
 bool Wave::collapseTile(Coords position) {
-    
+    waveGrid_[position.y][position.x].collapse();
+    waveGrid_[position.y][position.x].propagate(position, waveGrid_, rules_);
 }
 
 // Propigate any changes from collapsed tile
@@ -119,14 +144,12 @@ bool Wave::propigate() {}
 
 // collapse lowest entropy tile until full grid is collapsed or collision occurs
 bool Wave::collapse() {
-    int collapsed = false;
     Coords location;
-    while (!collapsed) {
-        location = lowestEntropy();
+    location = lowestEntropy();
+    while (!collapsed_) {
         collapseTile(location);
-        collapsed = !propigate();
+        location = lowestEntropy();
     }
-    if (collapsed = -1) return false;
     return true;
 }
 
