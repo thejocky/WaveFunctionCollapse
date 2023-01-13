@@ -4,7 +4,10 @@
 #include <tuple>
 #include <cmath>
 
-Tile<numStates>::Tile (const double* weights, size_t numberOfStates) :
+#include <iostream>
+
+
+Tile::Tile(const double* weights, size_t numberOfStates) :
     states_(numberOfStates), weights_(weights),
     collapsed_(false), finalState_(false)
 {
@@ -55,9 +58,7 @@ void Tile::enforceRule(Wave::Coords position, Array2D<Tile*> &waveGrid,
     bool changed = false; // if rule changes state
     if (states & (~enforcedRule)) changed = true;
     states &= enforcedRule;
-    if (!changed) return;
-    
-    propagate(position, waveGrid, rules);
+    if (changed) propagate(position, waveGrid, rules);
 }
 
 void propagate(Wave::Coords position, Array2D<Tile*> &waveGrid,
@@ -139,11 +140,10 @@ bool Wave::collapseTile(Coords position) {
     waveGrid_[position.y][position.x].propagate(position, waveGrid_, rules_);
 }
 
-// Propigate any changes from collapsed tile
-bool Wave::propigate() {}
 
 // collapse lowest entropy tile until full grid is collapsed or collision occurs
 bool Wave::collapse() {
+    if (collapsed_) return;
     Coords location;
     location = lowestEntropy();
     while (!collapsed_) {
@@ -154,7 +154,6 @@ bool Wave::collapse() {
 }
 
 
-#include <iostream>
 int main() {
 
     double weights[4] = {0.7, 0.3, 1, 0.1};
@@ -170,6 +169,4 @@ int main() {
         result = tile.collapse();
         std::cout << "  -  Result: " << result << "\n";
     }
-
-
 }

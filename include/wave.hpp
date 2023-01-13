@@ -50,6 +50,7 @@ class Wave {
     Array2D<Tile*> waveGrid_;
     std::forward_list<Tile*> entropySorted_; // Tiles in grid sorted by entropy 
     const double* weights_;
+    collapsed_;
     
     std::vector<DynamicBitset[4]> rules_;
 
