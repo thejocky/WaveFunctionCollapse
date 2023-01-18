@@ -3,6 +3,11 @@
 namespace wfc {
 
 
+    bool RuleSet::addImage(InputImage image) {
+        
+    }
+
+
     bool RuleSet::loadImage(const char* path) {
         int width, height, nrChannels;
         unsigned char* data;
