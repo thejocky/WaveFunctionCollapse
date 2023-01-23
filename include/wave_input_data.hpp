@@ -5,32 +5,35 @@
 #include <utils/dynamic_bitset.hpp>
 
 
-namespace wfc {
+namespace wfc::input {
 
-    // Pixel used as unique identifier for pixels, accessing is not 
+    
+
+    // Tile used as unique identifier for different possible grid values 
+    #define Tile uint32_t
+
     #define Pixel uint32_t
+    Pixel pixel(int TileSize, uint8_t red, uint8_t green, uint8_t blue);
+    Pixel pixel(int TileSize, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 
-    Pixel pixel(int pixelSize, uint8_t red, uint8_t green, uint8_t blue);
-    Pixel pixel(int pixelSize, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 
-
-    class InputImage {
+    class InputGrid {
         size_t width_, height_;
-        Pixel *data_;
+        Tile *data_;
 
         public:
 
-        const expr PixelSize() {return sizeof(Pixel);}
+        InputGrid(size_t width, size_t height);
+
+        const expr TileSize() {return sizeof(Tile);}
 
         size_t width() {return width_;}
         size_t height() {return height_;}
 
-        InputImage(size_t width, size_t height);
-
-        void setPixel(size_t x, size_t y, Pixel pixel) {data[y*width_ + x] = pixel;};
-        Pixel getPixel(size_t x, size_t y) {return data[y*width_ + x];}
+        void setTile(size_t x, size_t y, Tile tile) {data[y*width_ + x] = tile;};
+        Tile getTile(size_t x, size_t y) {return data[y*width_ + x];}
         
-        uint32_t *operator[](int i) {return data_[i*width_];}
+        Tile *operator[](int i) {return data_[i*width_];}
     }
 
     class RuleSet {
@@ -55,6 +58,23 @@ namespace wfc {
         void getWeight(int state) {return weights_[state];}
         void getRule(int state, Wave::Direction direction);
         
+    };
+
+    class ImageLoader {
+        std::map<Pixel, Tile> encodingMap_;
+        std::map<Tile, Pixel> decodingMap_;
+        bool implicitEncoding_;
+
+        public:
+
+        ImageLoader() {}
+        ~ImageLoader() {}
+
+        void setImplicitEncoding(bool value) {implicitEncoding_ = true;}
+
+        InputGrid* loadImage(const char* path);
+        
+
     };
 
 
