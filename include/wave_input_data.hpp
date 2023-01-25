@@ -22,6 +22,8 @@ namespace wfc::input {
         uint8_t* data;
         uint32_t width_, height_, channels_;
 
+        void expandStates(uint32_t num);
+
         public:
 
         InputGrid(size_t width, size_t height);
@@ -43,16 +45,14 @@ namespace wfc::input {
     class ImageLoader {
         std::map<Pixel, Tile> encodingMap_;
         std::map<Tile, Pixel> decodingMap_;
-        bool implicitEncoding_;
 
         public:
 
         ImageLoader() {}
         ~ImageLoader() {}
 
-        void loadRulesFromImage()
-
-        InputGrid* loadImage(const char* path);
+        bool addEncoding(Pixel pixel, Tile tile);
+        bool addDecoding(Tile tile, Pixel pixel);
 
         Tile encodePixel(Pixel pixel) {return encodingMap_[pixel];}
         Pixel decodeTile(Tile tile) {return decodingMap_[tile];}
@@ -77,8 +77,8 @@ namespace wfc::input {
         ~RuleSet() {}
 
         bool addInput(InputGrid grid, ImageLoader& loader);
-        bool addImage(uint8_t* image, ImageLoader& loader);
-        bool addImageFromFile(const char* path, ImageLoader& loader);
+        bool addImageData(uint8_t* image, ImageLoader& loader);
+        bool addImage(const char* path, ImageLoader& loader);
 
 
         bool addRulesFromFile(const char* path);
@@ -87,7 +87,7 @@ namespace wfc::input {
         bool loadToFile(const char* path);
 
         void getWeight(int state) {return weights_[state];}
-        void getRule(int state, Wave::Direction direction);
+        DynamicBitset& getRule(int state, Wave::Direction direction);
         
     };
 
