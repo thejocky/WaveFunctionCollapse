@@ -3,9 +3,29 @@
 namespace wfc::input {
 
 
-    bool RuleSet::addImage(InputImage image) {
-        
+    bool ImageLoader::addEncoding(Pixel pixel, Tile tile) {
+        encodingMap_[pixel] = tile;
     }
+    bool ImageLoader::addDecoding(Tile tile, Pixel pixel) {
+        decodingMap_[tile] = pixel;
+    }
+
+    Tile ImageLoader::encodePixel(Pixel pixel) {
+        Tile tile = encodingMap_[pixel];
+        if (tile) return tile;
+        usedTiles++;
+        addEncoding(pixel, usedTiles);
+        addDecoding(usedTiles, pixel);
+        return usedTiles;
+    }
+
+    Pixel ImageLoader::decodeTile(Tile tile) {
+        Tile tile = encodingMap_[pixel];
+        if (!tile) std::cout << "TILE HAS NO CORISPONDING PIXEL TO DECODE TO.";
+        return tile;
+    }
+
+
 
 
     bool RuleSet::addInput(InputGrid grid&, ImageLoader& loader) {
@@ -61,19 +81,9 @@ namespace wfc::input {
         return addImageData(data, width, height, channels, loader)
     }
 
-
-    // InputGrid* loadImage(const char* path) {
-    //     
-
-    //     grid = new InputGrid(width, height);
-
-    //     for (int x = 0; x < width; x++) {
-    //         for (int y = 0; y < height; y++) {
-
-    //         }
-    //     }
-    // }
-
+    DynamicBitset& RuleSet::getRule(int state, Wave::Direction direction) {
+        return rules_[state][direction];
+    }
 
 
 }
