@@ -55,7 +55,7 @@ namespace wfc {
     }
 
     void Tile::enforceRule(Wave::Coords position, Array2D<Tile*> &waveGrid,
-            std::vector<DynamicBitset[4]> &rules, DynamicBitset &enforcedRule) {
+            input::RuleSet &rules, DynamicBitset &enforcedRule) {
         bool changed = false; // if rule changes state
         if (states & (~enforcedRule)) changed = true;
         states &= enforcedRule;
@@ -63,13 +63,13 @@ namespace wfc {
     }
 
     void propagate(Wave::Coords position, Array2D<Tile*> &waveGrid,
-            std::vector<DynamicBitset[4]> &rules) {
+            input::RuleSet &rules) {
         DynamicBitset ruleUp(states.size());
         DynamicBitset ruleDown(states.size());
         DynamicBitset ruleLeft(states.size());
         DynamicBitset ruleRight(states.size());
         for (int i = 0; i < states.size(); i++) {
-            ruleUp |= rules[i][Wave::UP];
+            ruleUp |= rules.getRule(i, Wave::UP);
             ruleDown |= rules[i][Wave::DOWN];
             ruleLeft |= rules[i][Wave::LEFT];
             ruleRight |= rules[i][Wave::RIGHT];

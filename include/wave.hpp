@@ -52,7 +52,7 @@ namespace wfc {
         const double* weights_;
         collapsed_;
         
-        std::vector<DynamicBitset[4]> rules_;
+        input::RuleSet rules_;
 
         public:
 

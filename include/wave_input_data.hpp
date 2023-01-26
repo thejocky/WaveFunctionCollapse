@@ -18,23 +18,23 @@ namespace wfc::input {
 
 
     class InputGrid {
+        uint32_t width_, height_;
+        Tile* data_;
 
-        uint8_t* data;
-        uint32_t width_, height_, channels_;
-
-        void expandStates(uint32_t num);
+        // void expandStates(uint32_t num);
 
         public:
 
-        InputGrid(size_t width, size_t height);
+        InputGrid(uint32_t width, uint32_t height);
+        InputGrid(uint32_t width, uint32_t height, uint8_t* data);
 
         size_t width() {return width_;}
         size_t height() {return height_;}
 
-        void setTile(size_t x, size_t y, Tile tile);
-        Tile getTile(size_t x, size_t y);
+        void setTile(size_t x, size_t y, Tile tile) {returndata_[y*width_+x] = tile;}
+        Tile getTile(size_t x, size_t y) {return data_[y*width_+x];}
 
-        // Tile *operator[](int i) {return data_[i*width_];}
+        Tile *operator[](int y) {return data_[i*width_];}
     }
 
 
@@ -43,6 +43,7 @@ namespace wfc::input {
         // Tile getTile(size_t x, size_t y) override {return data[y*width_ + x];}
 
     class ImageLoader {
+        int32_t usedTiles;
         std::map<Pixel, Tile> encodingMap_;
         std::map<Tile, Pixel> decodingMap_;
 
@@ -54,7 +55,7 @@ namespace wfc::input {
         bool addEncoding(Pixel pixel, Tile tile);
         bool addDecoding(Tile tile, Pixel pixel);
 
-        Tile encodePixel(Pixel pixel) {return encodingMap_[pixel];}
+        Tile encodePixel(Pixel pixel);
         Pixel decodeTile(Tile tile) {return decodingMap_[tile];}
         
 

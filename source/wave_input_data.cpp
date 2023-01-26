@@ -3,6 +3,15 @@
 namespace wfc::input {
 
 
+    InputGrid::InputGrid(uint32_t width, uint32_t height) :
+        width_(width), height_(height), data_(new Tile[width*height])
+    {}
+
+    InputGrid::InputGrid(uint32_t width, uint32_t height, Tile* data) :
+        width_(width), height_(height), data_(data)
+    {}
+
+
     bool ImageLoader::addEncoding(Pixel pixel, Tile tile) {
         encodingMap_[pixel] = tile;
     }
@@ -20,9 +29,9 @@ namespace wfc::input {
     }
 
     Pixel ImageLoader::decodeTile(Tile tile) {
-        Tile tile = encodingMap_[pixel];
-        if (!tile) std::cout << "TILE HAS NO CORISPONDING PIXEL TO DECODE TO.";
-        return tile;
+        Pixel pixel = decodingMap_[tile];
+        if (!pixel) std::cout << "TILE HAS NO CORISPONDING PIXEL TO DECODE TO.";
+        return pixel;
     }
 
 
