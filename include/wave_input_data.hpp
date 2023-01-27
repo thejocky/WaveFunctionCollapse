@@ -77,15 +77,22 @@ namespace wfc::input {
         RuleSet() : states_(0) {}
         ~RuleSet() {}
 
+        private:
+        void updateWeights();
+
+        public:
+
+        int getStates() {return states_;}
+        
+
         bool addInput(InputGrid grid, ImageLoader& loader);
         bool addImageData(uint8_t* image, ImageLoader& loader);
         bool addImage(const char* path, ImageLoader& loader);
 
-
-        bool addRulesFromFile(const char* path);
+        // bool addRulesFromFile(const char* path);
         bool reset() {rules_.clear();}
 
-        bool loadToFile(const char* path);
+        // bool loadToFile(const char* path);
 
         void getWeight(int state) {return weights_[state];}
         DynamicBitset& getRule(int state, Wave::Direction direction);
