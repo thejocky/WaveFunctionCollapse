@@ -18,21 +18,21 @@ namespace wfc {
         size_t finalState_; // Once collapsed is the final state
 
 
-        Tile (const double* weights, size_t numberOfStates);
+        Tile (size_t numberOfStates, input::RuleSet &rules);
 
         ~Tile() {}
 
-        double updateEntropy();
+        double updateEntropy(input::RuleSet &rules);
         double entropy() {return entropy_;}
 
 
-        size_t collapse();
+        size_t collapse(input::RuleSet &rules);
 
         void enforceRule(Wave::Coords position, Array2D<Tile*> &waveGrid_,
-            std::vector<DynamicBitset[4]> &rules_, DynamicBitset &rule_);
+            input::RuleSet &rules_, DynamicBitset &rule_);
 
         void propagate(Wave::Coords position, Array2D<Tile*> &waveGrid_,
-            std::vector<DynamicBitset[4]> &rules_);
+            input::RuleSet &rules_);
 
         size_t type();
 
@@ -49,10 +49,9 @@ namespace wfc {
         
         Array2D<Tile*> waveGrid_;
         std::forward_list<Tile*> entropySorted_; // Tiles in grid sorted by entropy 
-        const double* weights_;
         collapsed_;
         
-        input::RuleSet rules_;
+        input::RuleSet *rules_;
 
         public:
 

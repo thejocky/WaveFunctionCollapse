@@ -8,8 +8,8 @@
 
 namespace wfc {
 
-    Tile::Tile(const double* weights, size_t numberOfStates) :
-        states_(numberOfStates), weights_(weights),
+    Tile::Tile(size_t numberOfStates, input::RuleSet &rules) :
+        states_(numberOfStates),
         collapsed_(false), finalState_(false)
     {
         updateEntropy();
@@ -70,9 +70,9 @@ namespace wfc {
         DynamicBitset ruleRight(states.size());
         for (int i = 0; i < states.size(); i++) {
             ruleUp |= rules.getRule(i, Wave::UP);
-            ruleDown |= rules[i][Wave::DOWN];
-            ruleLeft |= rules[i][Wave::LEFT];
-            ruleRight |= rules[i][Wave::RIGHT];
+            ruleDown |= rules.getRule(i, Wave::DOWN);
+            ruleLeft |= rules.getRule(i, Wave::LEFT);
+            ruleRight |= rules.getRule(i, Wave::RIGHT);
         }
         
         if (position.y < waveGrid.yLen()-1)
