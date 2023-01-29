@@ -1,8 +1,15 @@
 #pragma once
 
-#include <wave.hpp>
+namespace wfc::input {
+    class InputGrid;
+    class ImageLoader;
+    class RuleSet;
+}
 
+#include <wave.hpp>
 #include <utils/dynamic_bitset.hpp>
+
+#include <map>
 
 
 namespace wfc::input {
@@ -10,7 +17,7 @@ namespace wfc::input {
     
 
     // Tile used as unique identifier for different possible grid values 
-    #define Tile uint32_t
+    #define TileID uint32_t
 
     #define Pixel uint32_t
     Pixel pixel(int TileSize, uint8_t red, uint8_t green, uint8_t blue);
@@ -19,23 +26,24 @@ namespace wfc::input {
 
     class InputGrid {
         uint32_t width_, height_;
-        Tile* data_;
+        TileID* data_;
 
         // void expandStates(uint32_t num);
 
         public:
 
         InputGrid(uint32_t width, uint32_t height);
-        InputGrid(uint32_t width, uint32_t height, uint8_t* data);
+        InputGrid(uint32_t width, uint32_t height, TileID* data);
+        ~InputGrid();
 
         size_t width() {return width_;}
         size_t height() {return height_;}
 
-        void setTile(size_t x, size_t y, Tile tile) {returndata_[y*width_+x] = tile;}
-        Tile getTile(size_t x, size_t y) {return data_[y*width_+x];}
+        void setTile(size_t x, size_t y, TileID tile) {data_[y*width_+x] = tile;}
+        TileID getTile(size_t x, size_t y) {return data_[y*width_+x];}
 
-        Tile *operator[](int y) {return data_[i*width_];}
-    }
+        TileID *operator[](int y) {return data_ + y*width_;}
+    };
 
 
 
@@ -44,19 +52,19 @@ namespace wfc::input {
 
     class ImageLoader {
         int32_t usedTiles;
-        std::map<Pixel, Tile> encodingMap_;
-        std::map<Tile, Pixel> decodingMap_;
+        std::map<Pixel, TileID> encodingMap_;
+        std::map<TileID, Pixel> decodingMap_;
 
         public:
 
         ImageLoader() {}
         ~ImageLoader() {}
 
-        bool addEncoding(Pixel pixel, Tile tile);
-        bool addDecoding(Tile tile, Pixel pixel);
+        bool addEncoding(Pixel pixel, TileID tile);
+        bool addDecoding(TileID tile, Pixel pixel);
 
-        Tile encodePixel(Pixel pixel);
-        Pixel decodeTile(Tile tile) {return decodingMap_[tile];}
+        TileID encodePixel(Pixel pixel);
+        Pixel decodeTile(TileID tile) {return decodingMap_[tile];}
         
 
     };
@@ -67,7 +75,7 @@ namespace wfc::input {
 
 
         int states_;                   // Number of states currently in ruleset
-        std::vector<float> wieghts_;   // Weights of each state
+        std::vector<float> weights_;   // Weights of each state
         std::vector<uint32_t> counts_; // Number of each state encountered in input
         size_t processedStates_;       // Total number of states processed by ruleset 
         std::vector<DynamicBitset[4]> rules_;
@@ -90,12 +98,12 @@ namespace wfc::input {
         bool addImage(const char* path, ImageLoader& loader);
 
         // bool addRulesFromFile(const char* path);
-        bool reset() {rules_.clear();}
+        void reset() {rules_.clear();}
 
         // bool loadToFile(const char* path);
 
-        void getWeight(int state) {return weights_[state];}
-        DynamicBitset& getRule(int state, Wave::Direction direction);
+        float getWeight(int state) {return weights_[state];}
+        DynamicBitset& getRule(int state, WaveDirection direction);
         
     };
 

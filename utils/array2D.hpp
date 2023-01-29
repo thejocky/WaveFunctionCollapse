@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 template <typename T> class Array2D {
 
     size_t ySize_;

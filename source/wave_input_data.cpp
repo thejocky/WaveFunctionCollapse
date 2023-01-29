@@ -1,21 +1,26 @@
 #include <wave_input_data.hpp>
 
+#include <iostream>
+
 namespace wfc::input {
 
 
     InputGrid::InputGrid(uint32_t width, uint32_t height) :
-        width_(width), height_(height), data_(new Tile[width*height])
+        width_(width), height_(height), data_(new Tile(width*height))
     {}
 
-    InputGrid::InputGrid(uint32_t width, uint32_t height, Tile* data) :
+    InputGrid::InputGrid(uint32_t width, uint32_t height, TileID* data) :
         width_(width), height_(height), data_(data)
     {}
 
+    InputGrid::~InputGrid() {
+        detele[] data_;
+    }
 
-    bool ImageLoader::addEncoding(Pixel pixel, Tile tile) {
+    bool ImageLoader::addEncoding(Pixel pixel, TileID tile) {
         encodingMap_[pixel] = tile;
     }
-    bool ImageLoader::addDecoding(Tile tile, Pixel pixel) {
+    bool ImageLoader::addDecoding(TileID tile, Pixel pixel) {
         decodingMap_[tile] = pixel;
     }
 
@@ -84,10 +89,11 @@ namespace wfc::input {
         int width, height, nrChannels;
         unsigned char* data;
 
-        data = stbi_load(file, &width, &height, &nrChannels, 0);
+        data = stbi_load(path, &width, &height, &nrChannels, 0);
         if (!data) {std::cerr << "ERRROR OPENING IMAGE: " << file << "\n"; return false;}
-
-        return addImageData(data, width, height, channels, loader)
+        auto returnVal = addImageData(data, width, height, channels, loader);
+        delete[] data;
+        return returnVal;
     }
 
     DynamicBitset& RuleSet::getRule(int state, Wave::Direction direction) {

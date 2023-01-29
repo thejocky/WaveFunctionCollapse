@@ -1,5 +1,12 @@
 #pragma once
 
+namespace wfc {
+    class Tile;
+    class Wave;
+    enum WaveDirection {UP=0, RIGHT=1, DOWN=2, LEFT=3};
+    struct Coords {int x; int y;};
+}
+
 #include <vector>
 #include <utils/array2D.hpp>
 #include <utils/dynamic_bitset.hpp>
@@ -7,16 +14,18 @@
 #include <bitset>
 #include <forward_list>
 
+#include <wave_input_data.hpp>
+
 namespace wfc {
 
     class Tile {
         DynamicBitset states_;  // bitset of possible states of tile
-        const double* weights_; // Weights for each states
         double weightSum_;      // Sum of weights of possible states
         double entropy_;
         bool collapsed_;
         size_t finalState_; // Once collapsed is the final state
 
+        public:
 
         Tile (size_t numberOfStates, input::RuleSet &rules);
 
@@ -26,39 +35,38 @@ namespace wfc {
         double entropy() {return entropy_;}
 
 
-        size_t collapse(input::RuleSet &rules);
+        void collapse(input::RuleSet &rules);
 
-        void enforceRule(Wave::Coords position, Array2D<Tile*> &waveGrid_,
+        void enforceRule(Coords position, Array2D<Tile*> &waveGrid_,
             input::RuleSet &rules_, DynamicBitset &rule_);
 
-        void propagate(Wave::Coords position, Array2D<Tile*> &waveGrid_,
+        void propagate(Coords position, Array2D<Tile*> &waveGrid_,
             input::RuleSet &rules_);
 
-        size_t type();
+        size_t finalState();
 
-        void setInternalStates_DEBUG(std::bitset<numStates> states) {states_ = states;}
+        // void setInternalStates_DEBUG(DynamicBitset states) {states_ = states;}
 
     };
 
     class Wave {
 
         public:
-        enum Direction {UP=0, RIGHT=1, DOWN=2, LEFT=3};
+        // enum Direction {UP=0, RIGHT=1, DOWN=2, LEFT=3};
 
         private:
         
         Array2D<Tile*> waveGrid_;
         std::forward_list<Tile*> entropySorted_; // Tiles in grid sorted by entropy 
-        collapsed_;
+        bool collapsed_;
         
         input::RuleSet *rules_;
 
         public:
 
-        // Simple struct used to pass coords between methods
-        struct Coords {int x; int y;};
+        
 
-        Wave(size_t width, size_t height, size_t states, const double* weights);
+        Wave(size_t width, size_t height, size_t states, input::RuleSet *rules);
         
         ~Wave() {}
 

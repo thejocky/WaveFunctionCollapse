@@ -5,7 +5,7 @@
 
 class DynamicBitset {
 
-    static const BITS_IN_I32 = sizeof(i32_t);
+    static const int BITS_IN_I32 = sizeof(uint32_t);
     
     uint32_t* data_; // bits orientated backwards so lowest order bit at index 0
     size_t size_;
@@ -14,20 +14,20 @@ class DynamicBitset {
     public:
     
     DynamicBitset(size_t n);
-    template <T>
-    DynamicBitset(T data);
+    // template <T>
+    // DynamicBitset(T data);
     // DynamicBitset(long long data);
     // DynamicBitset(const DynamicBitset& other);
 
-    size_t size() {return size_;}
-    bool bit(size_t n)
+    size_t size() const {return size_;}
+    bool bit(size_t n) const;
     bool setBit(size_t n, bool value);
     
 
     protected:
 
-    size_t blockSize() {return numBlocks_;}
-    uint32_t block(size_t n);
+    size_t blockSize() const {return numBlocks_;}
+    uint32_t block(size_t n) const;
     uint32_t setBlock(size_t n, uint32_t block);
 
     public:
@@ -37,14 +37,14 @@ class DynamicBitset {
     // Bitwise opperations (NOT YET USABLE FOR OPERATION WITH DIFFERENT SIZES)
 
     // applys & operation on each bit of self with other bitset
-    static void and(const DynamicBitset& src,
-        const DynamicBitset& target, const DynamicBitset& dest);
+    static void andOp(const DynamicBitset& src,
+        const DynamicBitset& target, DynamicBitset& dest);
     // applys | operation on each bit of self with other bitset
-    static void or(const DynamicBitset& src,
-        const DynamicBitset& target, const DynamicBitset& dest);
+    static void orOp(const DynamicBitset& src,
+        const DynamicBitset& target, DynamicBitset& dest);
     // applys ^ operation on each bit of self with other bitset
-    static void xor(const DynamicBitset& src,
-        const DynamicBitset& target, const DynamicBitset& dest);
+    static void xorOp(const DynamicBitset& src,
+        const DynamicBitset& target, DynamicBitset& dest);
     // // Shift each bit left by n filling in with 0
     // DynamicBitset& shiftLeft(int n);
     // // shift each bit right by n filling in with 0
@@ -53,7 +53,7 @@ class DynamicBitset {
     // // 10110010 -> 11011001 | 00110010 -> 00011001 
     // DynamicBitset& shiftARight(n);
     // Invert each bit of bitset
-    static void not(const DynamicBitset& src, const DynamicBitset& dest);
+    static void notOp(const DynamicBitset& src, DynamicBitset& dest);
 
     DynamicBitset& operator& (const DynamicBitset& other);
     DynamicBitset& operator| (const DynamicBitset& other);

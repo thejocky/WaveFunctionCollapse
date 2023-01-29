@@ -1,10 +1,10 @@
-#include <dynamic_bitset.hpp>
+#include <utils/dynamic_bitset.hpp>
 
 #include <algorithm>
 
 
     
-DynamicBitset::DynamicBitset(size_t n)
+DynamicBitset::DynamicBitset(size_t n) :
     data_(new uint32_t[n/BITS_IN_I32]{0}),
     size_(n), numBlocks_(n/BITS_IN_I32)
 {}
@@ -18,12 +18,12 @@ DynamicBitset::DynamicBitset(size_t n)
 // DynamicBitset(const DynamicBitset& other);
 
 
-bool DynamicBitset::bit(size_t n) {
-    return data[n/BITS_IN_I32] & (0x8 << n % BITS_IN_I32)
+bool DynamicBitset::bit(size_t n) const {
+    return data_[n/BITS_IN_I32] & (0x1 << n % BITS_IN_I32);
 }
-uint32_t DynamicBitset::blockN(size_t n) {
-    if (n >= numBlocks) return 0;
-    return data[n/BITS_IN_I32];
+uint32_t DynamicBitset::block(size_t n) const {
+    if (n >= numBlocks_) return 0;
+    return data_[n/BITS_IN_I32];
 }
 
 
@@ -33,24 +33,24 @@ uint32_t DynamicBitset::blockN(size_t n) {
 // Bitwise opperations
 
 // applys & operation on each bit of self with other bitset
-void DynamicBitset::and(const DynamicBitset& src,
-        const DynamicBitset& target, const DynamicBitset& dest) {
+void DynamicBitset::andOp(const DynamicBitset& src,
+        const DynamicBitset& target, DynamicBitset& dest) {
     for (auto i = 0; i < dest.blockSize(); i++) {
         dest.setBlock(i, src.block(i) & target.block(i));
     }
 }
 
 // applys | operation on each bit of self with other bitset
-void DynamicBitset::or(const DynamicBitset& src,
-        const DynamicBitset& target, const DynamicBitset& dest) {
+void DynamicBitset::orOp(const DynamicBitset& src,
+        const DynamicBitset& target, DynamicBitset& dest) {
     for (auto i = 0; i < dest.blockSize(); i++) {
         dest.setBlock(i, src.block(i) | target.block(i));
     }
 }
 
 // applys ^ operation on each bit of self with other bitset
-DynamicBitset& DynamicBitset::xor(const DynamicBitset& src,
-        const DynamicBitset& target, const DynamicBitset& dest) {
+void DynamicBitset::xorOp(const DynamicBitset& src,
+        const DynamicBitset& target, DynamicBitset& dest) {
     for (auto i = 0; i < dest.blockSize(); i++) {
         dest.setBlock(i, src.block(i) ^ target.block(i));
     }
@@ -71,7 +71,7 @@ DynamicBitset& DynamicBitset::xor(const DynamicBitset& src,
 // DynamicBitset& shiftARight(n);
 // Invert each bit of bitset
 
-void DynamicBitset::not(const DynamicBitset& src, const DynamicBitset& dest); {
+void DynamicBitset::notOp(const DynamicBitset& src, DynamicBitset& dest) {
     for (auto i = 0; i < dest.blockSize(); i++) {
         dest.setBlock(i, ~src.block(i));
     }
@@ -79,41 +79,41 @@ void DynamicBitset::not(const DynamicBitset& src, const DynamicBitset& dest); {
 
 
 DynamicBitset& DynamicBitset::operator& (const DynamicBitset& other) {
-    DynamicBitset(size_) returnVal;
-    and(*this, other, returnVal);
+    DynamicBitset returnVal(size_);
+    andOp(*this, other, returnVal);
     return returnVal;
 }
 DynamicBitset& DynamicBitset::operator| (const DynamicBitset& other) {
-    DynamicBitset(size_) returnVal;
-    or(*this, other, returnVal);
+    DynamicBitset returnVal(size_);
+    orOp(*this, other, returnVal);
     return returnVal;
 }
 DynamicBitset& DynamicBitset::operator^ (const DynamicBitset& other) {
-    DynamicBitset(size_) returnVal;
-    xor(*this, other, returnVal);
+    DynamicBitset returnVal(size_);
+    xorOp(*this, other, returnVal);
     return returnVal;
 }
 DynamicBitset& DynamicBitset::operator~ () {
-    DynamicBitset(size_) returnVal;
-    not(*this, returnVal);
+    DynamicBitset returnVal(size_);
+    notOp(*this, returnVal);
     return returnVal;
 }
 
 
 DynamicBitset& DynamicBitset::operator&= (const DynamicBitset& other) {
-    and(*this, other, *this);
+    DynamicBitset::andOp(*this, other, *this);
     return *this;
 }
 DynamicBitset& DynamicBitset::operator|= (const DynamicBitset& other) {
-    or(*this, other, *this);
+    DynamicBitset::orOp(*this, other, *this);
     return *this;
 }
 DynamicBitset& DynamicBitset::operator^= (const DynamicBitset& other) {
-    xor(*this, other, *this);
+    DynamicBitset::xorOp(*this, other, *this);
     return *this;
 }
 
-operator bool() {
+operator DynamicBitset::bool() {
     for (auto i = 0; i < numBlocks_; i++) {
         if (data_[i]) return true;
     }
