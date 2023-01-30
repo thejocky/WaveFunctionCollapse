@@ -6,15 +6,26 @@ namespace wfc::input {
 
 
     InputGrid::InputGrid(uint32_t width, uint32_t height) :
-        width_(width), height_(height), data_(new Tile(width*height))
+        width_(width), height_(height), data_(new TileID[width*height]{NULL})
     {}
 
     InputGrid::InputGrid(uint32_t width, uint32_t height, TileID* data) :
-        width_(width), height_(height), data_(data)
-    {}
+        width_(width), height_(height), data_(data), numStates_(0)
+    {
+        for (int x = 0; x < width_; x++) {
+            for (int y = 0; y < height_; y++) {
+                if (getTile(x, y)+1 > numStates_) numStates_ = getTile(x, y)+1;
+            }
+        }
+    }
+
+    void InputGrid::setTile(size_t x, size_t y, TileID tile) {
+        if (tile > numStates_) numStates_ = tile;
+        data_[y*width_+x] = tile;
+    }
 
     InputGrid::~InputGrid() {
-        detele[] data_;
+        delete[] data_;
     }
 
     bool ImageLoader::addEncoding(Pixel pixel, TileID tile) {
@@ -24,8 +35,8 @@ namespace wfc::input {
         decodingMap_[tile] = pixel;
     }
 
-    Tile ImageLoader::encodePixel(Pixel pixel) {
-        Tile tile = encodingMap_[pixel];
+    TileID ImageLoader::encodePixel(Pixel pixel) {
+        TileID tile = encodingMap_[pixel];
         if (tile) return tile;
         usedTiles++;
         addEncoding(pixel, usedTiles);
@@ -33,7 +44,7 @@ namespace wfc::input {
         return usedTiles;
     }
 
-    Pixel ImageLoader::decodeTile(Tile tile) {
+    Pixel ImageLoader::decodeTile(TileID tile) {
         Pixel pixel = decodingMap_[tile];
         if (!pixel) std::cout << "TILE HAS NO CORISPONDING PIXEL TO DECODE TO.";
         return pixel;
@@ -42,14 +53,15 @@ namespace wfc::input {
 
 
 
-    bool RuleSet::addInput(InputGrid grid&, ImageLoader& loader) {
+    bool RuleSet::addInput(const InputGrid& grid, ImageLoader& loader) {
         uint32_t state;
+
+        if (grid)
 
         for (int x = 0; x < grid.width(); x++) {
             for (int y = 0; y < grid.height(); y++) {
 
                 state = grid.getTile(x, y);
-                if (state > states_) expandStates(state);
                 counts_[state]++;
                 
                 // Set upward as rule

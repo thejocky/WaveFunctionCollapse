@@ -25,10 +25,10 @@ namespace wfc::input {
 
 
     class InputGrid {
-        uint32_t width_, height_;
+        TileID width_, height_;
         TileID* data_;
 
-        // void expandStates(uint32_t num);
+        void expandStates(uint32_t num);
 
         public:
 
@@ -36,11 +36,11 @@ namespace wfc::input {
         InputGrid(uint32_t width, uint32_t height, TileID* data);
         ~InputGrid();
 
-        size_t width() {return width_;}
-        size_t height() {return height_;}
+        size_t width() const {return width_;}
+        size_t height() const {return height_;}
 
         void setTile(size_t x, size_t y, TileID tile) {data_[y*width_+x] = tile;}
-        TileID getTile(size_t x, size_t y) {return data_[y*width_+x];}
+        TileID getTile(size_t x, size_t y) const {return data_[y*width_+x];}
 
         TileID *operator[](int y) {return data_ + y*width_;}
     };
@@ -93,7 +93,7 @@ namespace wfc::input {
         int getStates() {return states_;}
         
 
-        bool addInput(InputGrid grid, ImageLoader& loader);
+        bool addInput(const InputGrid& grid, ImageLoader& loader);
         bool addImageData(uint8_t* image, ImageLoader& loader);
         bool addImage(const char* path, ImageLoader& loader);
 
