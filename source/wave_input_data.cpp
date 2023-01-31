@@ -1,6 +1,8 @@
 #include <wave_input_data.hpp>
 
 #include <iostream>
+#define STB_IMAGE_IMPLEMENTATION
+#include <dep/stb/stb_image.h>
 
 namespace wfc::input {
 
@@ -52,11 +54,22 @@ namespace wfc::input {
 
 
 
+    RuleSet::RuleSet(uint32_t states) :
+        states_(states), weights_(states, 0), counts_(states,0),
+        processedStates_(0) // rules_(states, {states})
+    {
+        for (int i = 0; i < states_; i++) {
+            rules_.push_back(DynamicBitset{states})
+        }
+    }
 
     bool RuleSet::addInput(const InputGrid& grid, ImageLoader& loader) {
         uint32_t state;
 
-        if (grid)
+        if (grid.numStates() > states_) {
+            std::cerr << "ERROR INPUT DATA USED STATES ABOVE CAPACITY OF RULESET.\n";
+            return false;
+        }
 
         for (int x = 0; x < grid.width(); x++) {
             for (int y = 0; y < grid.height(); y++) {
@@ -66,51 +79,49 @@ namespace wfc::input {
                 
                 // Set upward as rule
                 if (y != 0)
-                    rules_[state][Wave::UP].setBit(grid.getTile(x, y-1));
+                    rules_[state][WaveDirection::UP].setBit(grid.getTile(x, y-1), true);
                 
                 // Set leftward as rule
                 if (x != 0)
-                    rules_[state][Wave::LEFT].setBit(grid.getTile(x-1, y));
+                    rules_[state][WaveDirection::LEFT].setBit(grid.getTile(x-1, y), true);
                 
                 // Set upward as rule
-                if (y != grid.heigth()-1) 
-                    rules_[state][Wave::UP].setBit(grid.getTile(x, y+1));   
+                if (y != grid.height()-1) 
+                    rules_[state][WaveDirection::UP].setBit(grid.getTile(x, y+1), true);   
             
                 // Set upward as rule
                 if (y != grid.width()-1)
-                    rules_[state][Wave::UP].setBit(grid.getTile(x+1, y));
+                    rules_[state][WaveDirection::UP].setBit(grid.getTile(x+1, y), true);
             }
         }
         return true;
     }
 
     bool RuleSet::addImageData(uint8_t* image, uint32_t width, uint32_t height, uint32_t channels, ImageLoader& loader) {
-        InputGrid grid = grid(width, height);
+        InputGrid grid(width, height);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                Tile tile;
-                memcpy(&tile, data + (x+y*width)*channels, channels);
-                grid.setTile(tile);
+                TileID tile;
+                memcpy(&tile, image + (x+y*width)*channels, channels);
+                grid.setTile(x, y, tile);
             }
         }
-        return addInput(grid);
+        return addInput(grid, loader);
     }
-
 
     bool RuleSet::addImage(const char* path, ImageLoader& loader) {
         int width, height, nrChannels;
         unsigned char* data;
 
         data = stbi_load(path, &width, &height, &nrChannels, 0);
-        if (!data) {std::cerr << "ERRROR OPENING IMAGE: " << file << "\n"; return false;}
-        auto returnVal = addImageData(data, width, height, channels, loader);
+        if (!data) {std::cerr << "ERRROR OPENING IMAGE: " << path << "\n"; return false;}
+        auto returnVal = addImageData(data, width, height, nrChannels, loader);
         delete[] data;
         return returnVal;
     }
 
-    DynamicBitset& RuleSet::getRule(int state, Wave::Direction direction) {
+    DynamicBitset& RuleSet::getRule(int state, WaveDirection direction) {
         return rules_[state][direction];
     }
-
 
 }

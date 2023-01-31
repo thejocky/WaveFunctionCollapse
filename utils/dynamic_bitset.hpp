@@ -21,7 +21,7 @@ class DynamicBitset {
 
     size_t size() const {return size_;}
     bool bit(size_t n) const;
-    bool setBit(size_t n, bool value);
+    void setBit(size_t n, bool value);
     
 
     protected:
@@ -31,7 +31,8 @@ class DynamicBitset {
     uint32_t setBlock(size_t n, uint32_t block);
 
     public:
-    
+
+    bool isTrue() const;
     
     
     // Bitwise opperations (NOT YET USABLE FOR OPERATION WITH DIFFERENT SIZES)
@@ -64,7 +65,7 @@ class DynamicBitset {
     DynamicBitset& operator|= (const DynamicBitset& other);
     DynamicBitset& operator^= (const DynamicBitset& other);
 
-    operator bool() const;
+    operator bool() const {return isTrue();};
 
 
 

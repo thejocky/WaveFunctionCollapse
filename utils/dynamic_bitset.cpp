@@ -9,25 +9,33 @@ DynamicBitset::DynamicBitset(size_t n) :
     size_(n), numBlocks_(n/BITS_IN_I32)
 {}
 
-// template <T>
-// DynamicBitset(T data) 
-//     size_(n), numBlocks_(n/BITS_IN_I32)
-// {
-
-// }
-// DynamicBitset(const DynamicBitset& other);
-
 
 bool DynamicBitset::bit(size_t n) const {
     return data_[n/BITS_IN_I32] & (0x1 << n % BITS_IN_I32);
 }
+void DynamicBitset::setBit(size_t n, bool value) {
+    data_[n/BITS_IN_I32] |= (0x1 << n % BITS_IN_I32);
+}
+
+
 uint32_t DynamicBitset::block(size_t n) const {
     if (n >= numBlocks_) return 0;
     return data_[n/BITS_IN_I32];
 }
+uint32_t DynamicBitset::setBlock(size_t n, uint32_t block) {
+    if (n >= numBlocks_) return 0;
+    uint32_t tmp = data_[n/BITS_IN_I32];
+    data_[n/BITS_IN_I32] = block;
+    return tmp;
+}
 
 
-    
+bool DynamicBitset::isTrue() const {
+    for (auto i = 0; i < numBlocks_; i++) {
+        if (data_[i]) return true;
+    }
+    return false;
+}
     
     
 // Bitwise opperations
@@ -113,9 +121,3 @@ DynamicBitset& DynamicBitset::operator^= (const DynamicBitset& other) {
     return *this;
 }
 
-operator DynamicBitset::bool() {
-    for (auto i = 0; i < numBlocks_; i++) {
-        if (data_[i]) return true;
-    }
-    return false;
-}

@@ -27,8 +27,9 @@ namespace wfc::input {
     class InputGrid {
         TileID width_, height_;
         TileID* data_;
+        uint32_t numStates_;
 
-        void expandStates(uint32_t num);
+        // void expandStates(uint32_t num);
 
         public:
 
@@ -36,10 +37,12 @@ namespace wfc::input {
         InputGrid(uint32_t width, uint32_t height, TileID* data);
         ~InputGrid();
 
+        uint32_t numStates() const {return numStates_;}
+
         size_t width() const {return width_;}
         size_t height() const {return height_;}
 
-        void setTile(size_t x, size_t y, TileID tile) {data_[y*width_+x] = tile;}
+        void setTile(size_t x, size_t y, TileID tile);
         TileID getTile(size_t x, size_t y) const {return data_[y*width_+x];}
 
         TileID *operator[](int y) {return data_ + y*width_;}
@@ -64,7 +67,7 @@ namespace wfc::input {
         bool addDecoding(TileID tile, Pixel pixel);
 
         TileID encodePixel(Pixel pixel);
-        Pixel decodeTile(TileID tile) {return decodingMap_[tile];}
+        Pixel decodeTile(TileID tile);
         
 
     };
@@ -82,7 +85,7 @@ namespace wfc::input {
 
         public:
 
-        RuleSet() : states_(0) {}
+        RuleSet(uint32_t states);
         ~RuleSet() {}
 
         private:
@@ -94,7 +97,8 @@ namespace wfc::input {
         
 
         bool addInput(const InputGrid& grid, ImageLoader& loader);
-        bool addImageData(uint8_t* image, ImageLoader& loader);
+        bool addImageData(uint8_t* image, uint32_t width,
+            uint32_t height, uint32_t channels, ImageLoader& loader);
         bool addImage(const char* path, ImageLoader& loader);
 
         // bool addRulesFromFile(const char* path);
