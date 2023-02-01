@@ -158,9 +158,9 @@ namespace wfc {
 int main() {
 
     wfc::input::ImageLoader loader;
-    wfc::input::RuleSet rules;
+    wfc::input::RuleSet rules(128);
     if (!rules.addImage("../test_files/input_2.png", loader)) return 1;
-
+    std::cout << "Loaded Image\n";
 
     
 

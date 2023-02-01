@@ -11,6 +11,7 @@ namespace wfc::input {
 
 #include <map>
 
+#include <iostream>
 
 namespace wfc::input {
 
@@ -43,7 +44,9 @@ namespace wfc::input {
         size_t height() const {return height_;}
 
         void setTile(size_t x, size_t y, TileID tile);
-        TileID getTile(size_t x, size_t y) const {return data_[y*width_+x];}
+        TileID getTile(size_t x, size_t y) const {
+            std::cout << x << ", " << y << "\n";
+            return data_[y*width_+x];}
 
         TileID *operator[](int y) {return data_ + y*width_;}
     };
@@ -81,7 +84,7 @@ namespace wfc::input {
         std::vector<float> weights_;   // Weights of each state
         std::vector<uint32_t> counts_; // Number of each state encountered in input
         size_t processedStates_;       // Total number of states processed by ruleset 
-        std::vector<DynamicBitset[4]> rules_;
+        std::vector<DynamicBitset> rules_[4];
 
         public:
 
@@ -102,7 +105,7 @@ namespace wfc::input {
         bool addImage(const char* path, ImageLoader& loader);
 
         // bool addRulesFromFile(const char* path);
-        void reset() {rules_.clear();}
+        void reset();
 
         // bool loadToFile(const char* path);
 

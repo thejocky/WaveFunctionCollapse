@@ -8,7 +8,8 @@ namespace wfc::input {
 
 
     InputGrid::InputGrid(uint32_t width, uint32_t height) :
-        width_(width), height_(height), data_(new TileID[width*height]{NULL})
+        width_(width), height_(height), data_(new TileID[width*height]{NULL}),
+        numStates_(0)
     {}
 
     InputGrid::InputGrid(uint32_t width, uint32_t height, TileID* data) :
@@ -22,7 +23,10 @@ namespace wfc::input {
     }
 
     void InputGrid::setTile(size_t x, size_t y, TileID tile) {
-        if (tile > numStates_) numStates_ = tile;
+        
+        if (tile > numStates_) {numStates_ = tile;
+        std::cout << tile << " - " << numStates_ << " - " << x << ", " << y << "\n";
+        }
         data_[y*width_+x] = tile;
     }
 
@@ -56,16 +60,12 @@ namespace wfc::input {
 
     RuleSet::RuleSet(uint32_t states) :
         states_(states), weights_(states, 0), counts_(states,0),
-        processedStates_(0) // rules_(states, {states})
-    {
-        for (int i = 0; i < states_; i++) {
-            rules_.push_back(DynamicBitset{states})
-        }
-    }
+        processedStates_(0), rules_{{states, DynamicBitset(states)}}
+    {}
 
     bool RuleSet::addInput(const InputGrid& grid, ImageLoader& loader) {
         uint32_t state;
-
+        std::cout << grid.numStates() << " : " << states_ << "\n";
         if (grid.numStates() > states_) {
             std::cerr << "ERROR INPUT DATA USED STATES ABOVE CAPACITY OF RULESET.\n";
             return false;
@@ -76,22 +76,30 @@ namespace wfc::input {
 
                 state = grid.getTile(x, y);
                 counts_[state]++;
+                std::cout << "adding rule - ";
                 
                 // Set upward as rule
                 if (y != 0)
-                    rules_[state][WaveDirection::UP].setBit(grid.getTile(x, y-1), true);
+                    rules_[WaveDirection::UP][state].setBit(grid.getTile(x, y-1), true);
                 
+                std::cout << "Up finished - ";
+
                 // Set leftward as rule
                 if (x != 0)
-                    rules_[state][WaveDirection::LEFT].setBit(grid.getTile(x-1, y), true);
+                    rules_[WaveDirection::LEFT][state].setBit(grid.getTile(x-1, y), true);
                 
-                // Set upward as rule
+                std::cout << "Left finished - ";
+
+                // Set rightward as rule
                 if (y != grid.height()-1) 
-                    rules_[state][WaveDirection::UP].setBit(grid.getTile(x, y+1), true);   
+                    // rules_[WaveDirection::DOWN][state].setBit(grid.getTile(x, y+1), true);   
+                    std::cout << "pointer: " << rules_[WaveDirection::DOWN][state] << "\n";   
+                std::cout << "Right finished - ";
             
-                // Set upward as rule
-                if (y != grid.width()-1)
-                    rules_[state][WaveDirection::UP].setBit(grid.getTile(x+1, y), true);
+                // Set downward as rule
+                if (x != grid.width()-1)
+                    rules_[WaveDirection::RIGHT][state].setBit(grid.getTile(x+1, y), true);
+                std::cout << "finished\n";
             }
         }
         return true;
@@ -101,9 +109,9 @@ namespace wfc::input {
         InputGrid grid(width, height);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                TileID tile;
-                memcpy(&tile, image + (x+y*width)*channels, channels);
-                grid.setTile(x, y, tile);
+                Pixel pixel;
+                memcpy(&pixel, image + (x+y*width)*channels, channels);
+                grid.setTile(x, y, loader.encodePixel(pixel));
             }
         }
         return addInput(grid, loader);
@@ -120,8 +128,16 @@ namespace wfc::input {
         return returnVal;
     }
 
+    void RuleSet::reset() {
+        rules_[0].clear();
+        rules_[1].clear();
+        rules_[2].clear();
+        rules_[3].clear();
+    }
+
+
     DynamicBitset& RuleSet::getRule(int state, WaveDirection direction) {
-        return rules_[state][direction];
+        return rules_[direction][state];
     }
 
 }

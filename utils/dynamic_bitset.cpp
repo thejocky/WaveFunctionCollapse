@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-
+#include <iostream>
     
 DynamicBitset::DynamicBitset(size_t n) :
     data_(new uint32_t[n/BITS_IN_I32]{0}),
@@ -14,6 +14,7 @@ bool DynamicBitset::bit(size_t n) const {
     return data_[n/BITS_IN_I32] & (0x1 << n % BITS_IN_I32);
 }
 void DynamicBitset::setBit(size_t n, bool value) {
+    std::cout << size_  << " : " << n << "\n";
     data_[n/BITS_IN_I32] |= (0x1 << n % BITS_IN_I32);
 }
 
