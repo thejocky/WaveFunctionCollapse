@@ -84,6 +84,9 @@ namespace wfc {
         // collapse lowest entropy tile until full grid is collapsed or collision occurs
         bool collapse();
 
+        // returns final state as WaveGrid
+        input::WaveGrid* saveToWaveGrid();
+
     };
 
 }

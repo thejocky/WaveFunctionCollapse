@@ -1,7 +1,7 @@
 #pragma once
 
 namespace wfc::input {
-    class InputGrid;
+    class WaveGrid;
     class ImageLoader;
     class RuleSet;
 }
@@ -25,18 +25,21 @@ namespace wfc::input {
     Pixel pixel(int TileSize, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 
 
-    class InputGrid {
+    class WaveGrid {
         TileID width_, height_;
         TileID* data_;
         uint32_t numStates_;
 
         // void expandStates(uint32_t num);
 
+        protected:
+        TileID* getInternalData() {return data_;}
+
         public:
 
-        InputGrid(uint32_t width, uint32_t height);
-        InputGrid(uint32_t width, uint32_t height, TileID* data);
-        ~InputGrid();
+        WaveGrid(uint32_t width, uint32_t height);
+        WaveGrid(uint32_t width, uint32_t height, TileID* data);
+        ~WaveGrid();
 
         uint32_t numStates() const {return numStates_;}
 
@@ -45,10 +48,12 @@ namespace wfc::input {
 
         void setTile(size_t x, size_t y, TileID tile);
         TileID getTile(size_t x, size_t y) const {
-            std::cout << x << ", " << y << "\n";
+            // std::cout << x << ", " << y << "\n";
             return data_[y*width_+x];}
 
         TileID *operator[](int y) {return data_ + y*width_;}
+
+        friend class ImageLoader;
     };
 
 
@@ -71,6 +76,8 @@ namespace wfc::input {
 
         TileID encodePixel(Pixel pixel);
         Pixel decodeTile(TileID tile);
+
+        bool saveAsImage(WaveGrid* grid, const char* filePath);
         
 
     };
@@ -84,7 +91,7 @@ namespace wfc::input {
         std::vector<float> weights_;   // Weights of each state
         std::vector<uint32_t> counts_; // Number of each state encountered in input
         size_t processedStates_;       // Total number of states processed by ruleset 
-        std::vector<DynamicBitset> rules_[4];
+        std::vector<std::vector<DynamicBitset>> rules_;
 
         public:
 
@@ -99,7 +106,7 @@ namespace wfc::input {
         int getStates() {return states_;}
         
 
-        bool addInput(const InputGrid& grid, ImageLoader& loader);
+        bool addInput(const WaveGrid& grid, ImageLoader& loader);
         bool addImageData(uint8_t* image, uint32_t width,
             uint32_t height, uint32_t channels, ImageLoader& loader);
         bool addImage(const char* path, ImageLoader& loader);

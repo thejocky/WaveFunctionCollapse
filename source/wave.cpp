@@ -153,6 +153,18 @@ namespace wfc {
         return true;
     }
 
+    input::WaveGrid* Wave::saveToWaveGrid() {
+        if (!collapsed_) return nullptr;
+        input::WaveGrid *output = new input::WaveGrid(waveGrid_.xLen(), waveGrid_.yLen());
+        for (int x = 0; x < waveGrid_.xLen(); x++) {
+            for (int y = 0; y < waveGrid_.yLen(); y++) {
+                output->setTile(x, y, waveGrid_[y][x]->finalState());
+            }
+        }
+        return output;
+    }
+    
+
 }
 
 int main() {
@@ -162,7 +174,15 @@ int main() {
     if (!rules.addImage("../test_files/input_2.png", loader)) return 1;
     std::cout << "Loaded Image\n";
 
-    
+    wfc::Wave wave(200, 200, 128, &rules);
+    std::cout << "created wave\n";
 
+    wave.collapse();
+    std::cout << "collapsed wave\n";
+
+    wfc::input::WaveGrid *grid = wave.saveToWaveGrid(); 
+    std::cout << "saved to wavegrid\n";
+
+    loader.saveAsImage(grid, "../test_files/output_2.png");
 
 }
