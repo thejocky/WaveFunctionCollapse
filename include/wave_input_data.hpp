@@ -47,7 +47,7 @@ namespace wfc::input {
         size_t height() const {return height_;}
 
         void setTile(size_t x, size_t y, TileID tile);
-        TileID getTile(size_t x, size_t y) const {return data_[y*width_+x]};
+        TileID getTile(size_t x, size_t y) const {return data_[y*width_+x];};
 
         TileID *operator[](int y) {return data_ + y*width_;}
 
@@ -99,7 +99,7 @@ namespace wfc::input {
         int getStates() {return states_;}
         
 
-        bool addInput(const WaveGrid& grid, ImageLoader& loader);
+        bool addInput(const WaveGrid& grid);
         bool addImageData(uint8_t* image, uint32_t width,
             uint32_t height, uint32_t channels, ImageLoader& loader);
         bool addImage(const char* path, ImageLoader& loader);

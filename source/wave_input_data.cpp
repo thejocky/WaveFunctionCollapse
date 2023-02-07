@@ -92,7 +92,7 @@ namespace wfc::input {
         }
     }
 
-    bool RuleSet::addInput(const WaveGrid& grid, ImageLoader& loader) {
+    bool RuleSet::addInput(const WaveGrid& grid) {
         uint32_t state;
         if (grid.numStates() > states_) {
             std::cerr << "ERROR INPUT DATA USED STATES ABOVE CAPACITY OF RULESET.\n";
@@ -139,7 +139,7 @@ namespace wfc::input {
                 grid.setTile(x, y, loader.encodePixel(pixel));
             }
         }
-        return addInput(grid, loader);
+        return addInput(grid);
     }
 
     bool RuleSet::addImage(const char* path, ImageLoader& loader) {
