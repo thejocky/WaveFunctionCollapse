@@ -47,19 +47,13 @@ namespace wfc::input {
         size_t height() const {return height_;}
 
         void setTile(size_t x, size_t y, TileID tile);
-        TileID getTile(size_t x, size_t y) const {
-            // std::cout << x << ", " << y << "\n";
-            return data_[y*width_+x];}
+        TileID getTile(size_t x, size_t y) const {return data_[y*width_+x]};
 
         TileID *operator[](int y) {return data_ + y*width_;}
 
         friend class ImageLoader;
     };
 
-
-
-        // void setTile(size_t x, size_t y, Tile tile) override {data[y*width_ + x] = tile;}
-        // Tile getTile(size_t x, size_t y) override {return data[y*width_ + x];}
 
     class ImageLoader {
         int32_t usedTiles;

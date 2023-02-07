@@ -34,9 +34,7 @@ namespace wfc::input {
 
     void WaveGrid::setTile(size_t x, size_t y, TileID tile) {
         
-        if (tile > numStates_) {numStates_ = tile;
-        // std::cout << tile << " - " << numStates_ << " - " << x << ", " << y << "\n";
-        }
+        if (tile > numStates_) numStates_ = tile;
         data_[y*width_+x] = tile;
     }
 
@@ -72,21 +70,16 @@ namespace wfc::input {
     }
 
     bool ImageLoader::saveAsImage(WaveGrid* grid, const char* filePath) {
-        // uint8_t* data = reinterpret_cast<uint8_t*>(grid->getInternalData());
         uint8_t* data = new uint8_t[grid->width()*grid->height() * 4];
         for (int y = 0; y < grid->height(); y++) {
             for (int x = 0; x < grid->width(); x++) {
-                // std::cout << grid->getTile(x, y) << "\n";
                 Pixel pixel = decodeTile(grid->getTile(x, y));
-                // std::cout << pixel << "\n";
                 memcpy(data + (x+y*grid->width())*4, &pixel, 4);
             }
         }
         stbi_write_png(filePath, grid->width(), grid->height(), 4, data, 0);
 
     }
-
-
 
     RuleSet::RuleSet(uint32_t states) :
         states_(states), weights_(states, 0), counts_(states,0), processedTiles_(0),
@@ -96,13 +89,11 @@ namespace wfc::input {
     void RuleSet::updateWeights() {
         for (int i = 0; i < states_; i++) {
             weights_[i] = (float)counts_[i] / processedTiles_;
-            // std::cout << weights_[i] << "\n";
         }
     }
 
     bool RuleSet::addInput(const WaveGrid& grid, ImageLoader& loader) {
         uint32_t state;
-        // std::cout << grid.numStates() << " : " << states_ << "\n";
         if (grid.numStates() > states_) {
             std::cerr << "ERROR INPUT DATA USED STATES ABOVE CAPACITY OF RULESET.\n";
             return false;
@@ -114,36 +105,22 @@ namespace wfc::input {
                 state = grid.getTile(x, y)-1;
                 processedTiles_++;
                 counts_[state]++;
-                // std::cout << "adding rule - " << "pos:" << x << ',' << y << " - state:" << state << " - ";
                 
                 // Set upward as rule
                 if (y != 0)
                     rules_[WaveDirection::UP][state].setBit(grid.getTile(x, y-1)-1, true);
                 
-                // std::cout << "Up finished:" << rules_[WaveDirection::DOWN][3].size() << " - ";
-
                 // Set leftward as rule
-                // std::cout << "setting rule bit: " << x << ", " << y << " : " << state << " : " << grid.getTile(x-1, y)-1 << '\n';
-                
-                if (x != 0) {
-                    // if (!rules_[WaveDirection::LEFT][state].bit(grid.getTile(x-1, y)-1))
-                    //     std::cout << "Unique bit: " << x << ", " << y << " : " << state << " : " << grid.getTile(x-1, y)-1 << '\n';
-                    // std::cout << "bit rule enforced: " << rules_[WaveDirection::LEFT][state].bit(grid.getTile(x-1, y)-1) << '\n';
+                if (x != 0)
                     rules_[WaveDirection::LEFT][state].setBit(grid.getTile(x-1, y)-1, true);
-                }
-                
-                // std::cout << "Left finished - ";
 
                 // Set rightward as rule
                 if (y != grid.height()-1) 
                     rules_[WaveDirection::DOWN][state].setBit(grid.getTile(x, y+1)-1, true);   
-                    // std::cout << "pointer: " << rules_[WaveDirection::DOWN][state].size() << "\n";   
-                // std::cout << "Right finished - ";
-            
+
                 // Set downward as rule
                 if (x != grid.width()-1)
                     rules_[WaveDirection::RIGHT][state].setBit(grid.getTile(x+1, y)-1, true);
-                // std::cout << "finished\n";
             }
         }
         updateWeights();
@@ -152,7 +129,6 @@ namespace wfc::input {
 
     bool RuleSet::addImageData(uint8_t* image, uint32_t width, uint32_t height, uint32_t channels, ImageLoader& loader) {
         WaveGrid grid(width, height);
-        // std::cout << "channels: " << channels << "\n";
         Pixel setAlpha = 0; // Set alpha or-ed with each pixel
         if (channels == 3) setAlpha = pixel(0, 0, 0, 0xFF);
         for (int y = 0; y < height; y++) {
@@ -160,11 +136,9 @@ namespace wfc::input {
                 Pixel pixel;
                 memcpy(&pixel, image + (x+y*width)*channels, channels);
                 pixel |= setAlpha;
-                // std::cout << "pixel: " << pixel;
                 grid.setTile(x, y, loader.encodePixel(pixel));
             }
         }
-        loader.saveAsImage(&grid, "../test_files/output_test.png");
         return addInput(grid, loader);
     }
 

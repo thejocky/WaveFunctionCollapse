@@ -49,17 +49,10 @@ namespace wfc {
 
         void printTile();
 
-        // void setInternalStates_DEBUG(DynamicBitset states) {states_ = states;}
-
     };
 
     class Wave {
 
-        public:
-        // enum Direction {UP=0, RIGHT=1, DOWN=2, LEFT=3};
-
-        private:
-        
         Array2D<Tile*> waveGrid_;
         std::forward_list<Tile*> entropySorted_; // Tiles in grid sorted by entropy 
         bool collapsed_;

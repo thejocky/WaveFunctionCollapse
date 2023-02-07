@@ -21,12 +21,9 @@ DynamicBitset::DynamicBitset(const DynamicBitset &other) :
 }
 
 bool DynamicBitset::bit(size_t n) const {
-    // std::cout << "getting bit: " << n << ' ' << (n % BITS_IN_I32) << ' ' << n/BITS_IN_I32 << ' ' << data_[n/BITS_IN_I32] << '\n';
     return data_[n/BITS_IN_I32] & (0x1 << (n % BITS_IN_I32));
 }
 void DynamicBitset::setBit(size_t n, bool value) {
-    // std::cout << size_  << " : " << n << "\n";
-    // std::cout << "setting bit" << n << " : " << n % BITS_IN_I32 << '\n';
     if (value)
         data_[n/BITS_IN_I32] |= (0x1 << (n % BITS_IN_I32));
     else
@@ -59,19 +56,15 @@ bool DynamicBitset::isTrue() const {
 // applys & operation on each bit of self with other bitset
 void DynamicBitset::andOp(const DynamicBitset& src,
         const DynamicBitset& target, DynamicBitset& dest) {
-    // std::cout << "doing and op - " << std::flush;
     for (auto i = 0; i < dest.blockSize(); i++) {
-        // std::cout << "working on bit\n";
         dest.setBlock(i, src.block(i) & target.block(i));
     }
-    // std::cout << "finished and op - " << std::flush;
 }
 
 // applys | operation on each bit of self with other bitset
 void DynamicBitset::orOp(const DynamicBitset& src,
         const DynamicBitset& target, DynamicBitset& dest) {
     for (auto i = 0; i < dest.blockSize(); i++) {
-        // std::cout << "working on block - " << std::flush << target.block(i) << " - " << std::flush;
         dest.setBlock(i, src.block(i) | target.block(i));
     }
 }
@@ -108,7 +101,6 @@ void DynamicBitset::notOp(const DynamicBitset& src, DynamicBitset& dest) {
 
 DynamicBitset& DynamicBitset::operator& (const DynamicBitset& other) {
     DynamicBitset returnVal(size_);
-    // std::cout << "checking other:" << std::flush << other.bit(0) << "\n";
     andOp(*this, other, returnVal);
     return returnVal;
 }
@@ -134,9 +126,7 @@ DynamicBitset& DynamicBitset::operator&= (const DynamicBitset& other) {
     return *this;
 }
 DynamicBitset& DynamicBitset::operator|= (const DynamicBitset& other) {
-    // std::cout << "starting or operation - " << std::flush;
     DynamicBitset::orOp(*this, other, *this);
-    // std::cout << "finsihed\n";
     return *this;
 }
 DynamicBitset& DynamicBitset::operator^= (const DynamicBitset& other) {
