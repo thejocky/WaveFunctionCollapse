@@ -3,10 +3,19 @@
 #include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
 #include <dep/stb/stb_image.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <dep/stb/stb_image_write.h>
 
 namespace wfc::input {
 
+    Pixel pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {
+        return ((uint32_t)alpha << 0x18) | ((uint32_t)blue << 0x10) |
+                ((uint32_t)green << 0x8) | red;
+    }
+
+    Pixel pixel(uint8_t red, uint8_t green, uint8_t blue) {
+        pixel(red, blue, green, 0xFF);
+    }
 
     WaveGrid::WaveGrid(uint32_t width, uint32_t height) :
         width_(width), height_(height), data_(new TileID[width*height]{NULL}),
@@ -35,6 +44,11 @@ namespace wfc::input {
         delete[] data_;
     }
 
+
+    ImageLoader::ImageLoader() :
+        usedTiles(0)
+    {}
+
     bool ImageLoader::addEncoding(Pixel pixel, TileID tile) {
         encodingMap_[pixel] = tile;
     }
@@ -53,12 +67,21 @@ namespace wfc::input {
 
     Pixel ImageLoader::decodeTile(TileID tile) {
         Pixel pixel = decodingMap_[tile];
-        if (!pixel) std::cout << "TILE HAS NO CORISPONDING PIXEL TO DECODE TO.";
+        if (!pixel) std::cout << "TILE HAS NO CORISPONDING PIXEL TO DECODE TO.\n";
         return pixel;
     }
 
     bool ImageLoader::saveAsImage(WaveGrid* grid, const char* filePath) {
-        uint8_t* data = reinterpret_cast<uint8_t*>(grid->getInternalData());
+        // uint8_t* data = reinterpret_cast<uint8_t*>(grid->getInternalData());
+        uint8_t* data = new uint8_t[grid->width()*grid->height() * 4];
+        for (int y = 0; y < grid->height(); y++) {
+            for (int x = 0; x < grid->width(); x++) {
+                // std::cout << grid->getTile(x, y) << "\n";
+                Pixel pixel = decodeTile(grid->getTile(x, y));
+                // std::cout << pixel << "\n";
+                memcpy(data + (x+y*grid->width())*4, &pixel, 4);
+            }
+        }
         stbi_write_png(filePath, grid->width(), grid->height(), 4, data, 0);
 
     }
@@ -66,9 +89,16 @@ namespace wfc::input {
 
 
     RuleSet::RuleSet(uint32_t states) :
-        states_(states), weights_(states, 0), counts_(states,0), processedStates_(0),
-        rules_(4, std::vector(states, DynamicBitset(states)))
+        states_(states), weights_(states, 0), counts_(states,0), processedTiles_(0),
+        rules_(4, std::vector<DynamicBitset>(states, DynamicBitset(states, false)))
     {}
+
+    void RuleSet::updateWeights() {
+        for (int i = 0; i < states_; i++) {
+            weights_[i] = (float)counts_[i] / processedTiles_;
+            // std::cout << weights_[i] << "\n";
+        }
+    }
 
     bool RuleSet::addInput(const WaveGrid& grid, ImageLoader& loader) {
         uint32_t state;
@@ -82,46 +112,59 @@ namespace wfc::input {
             for (int x = 0; x < grid.height(); x++) {
 
                 state = grid.getTile(x, y)-1;
+                processedTiles_++;
                 counts_[state]++;
                 // std::cout << "adding rule - " << "pos:" << x << ',' << y << " - state:" << state << " - ";
                 
                 // Set upward as rule
                 if (y != 0)
-                    rules_[WaveDirection::UP][state].setBit(grid.getTile(x, y-1), true);
+                    rules_[WaveDirection::UP][state].setBit(grid.getTile(x, y-1)-1, true);
                 
                 // std::cout << "Up finished:" << rules_[WaveDirection::DOWN][3].size() << " - ";
 
                 // Set leftward as rule
-                if (x != 0)
-                    rules_[WaveDirection::LEFT][state].setBit(grid.getTile(x-1, y), true);
+                // std::cout << "setting rule bit: " << x << ", " << y << " : " << state << " : " << grid.getTile(x-1, y)-1 << '\n';
+                
+                if (x != 0) {
+                    // if (!rules_[WaveDirection::LEFT][state].bit(grid.getTile(x-1, y)-1))
+                    //     std::cout << "Unique bit: " << x << ", " << y << " : " << state << " : " << grid.getTile(x-1, y)-1 << '\n';
+                    // std::cout << "bit rule enforced: " << rules_[WaveDirection::LEFT][state].bit(grid.getTile(x-1, y)-1) << '\n';
+                    rules_[WaveDirection::LEFT][state].setBit(grid.getTile(x-1, y)-1, true);
+                }
                 
                 // std::cout << "Left finished - ";
 
                 // Set rightward as rule
-                rules_[WaveDirection::UP][state];
                 if (y != grid.height()-1) 
-                    rules_[WaveDirection::DOWN][state].setBit(grid.getTile(x, y+1), true);   
-                    // std::cout << "pointer: " << rules_[WaveDirection::UP][state].size() << "\n";   
+                    rules_[WaveDirection::DOWN][state].setBit(grid.getTile(x, y+1)-1, true);   
+                    // std::cout << "pointer: " << rules_[WaveDirection::DOWN][state].size() << "\n";   
                 // std::cout << "Right finished - ";
             
                 // Set downward as rule
                 if (x != grid.width()-1)
-                    rules_[WaveDirection::RIGHT][state].setBit(grid.getTile(x+1, y), true);
+                    rules_[WaveDirection::RIGHT][state].setBit(grid.getTile(x+1, y)-1, true);
                 // std::cout << "finished\n";
             }
         }
+        updateWeights();
         return true;
     }
 
     bool RuleSet::addImageData(uint8_t* image, uint32_t width, uint32_t height, uint32_t channels, ImageLoader& loader) {
         WaveGrid grid(width, height);
+        // std::cout << "channels: " << channels << "\n";
+        Pixel setAlpha = 0; // Set alpha or-ed with each pixel
+        if (channels == 3) setAlpha = pixel(0, 0, 0, 0xFF);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 Pixel pixel;
                 memcpy(&pixel, image + (x+y*width)*channels, channels);
+                pixel |= setAlpha;
+                // std::cout << "pixel: " << pixel;
                 grid.setTile(x, y, loader.encodePixel(pixel));
             }
         }
+        loader.saveAsImage(&grid, "../test_files/output_test.png");
         return addInput(grid, loader);
     }
 

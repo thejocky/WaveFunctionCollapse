@@ -21,8 +21,8 @@ namespace wfc::input {
     #define TileID uint32_t
 
     #define Pixel uint32_t
-    Pixel pixel(int TileSize, uint8_t red, uint8_t green, uint8_t blue);
-    Pixel pixel(int TileSize, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
+    Pixel pixel(uint8_t red, uint8_t green, uint8_t blue);
+    Pixel pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 
 
     class WaveGrid {
@@ -68,7 +68,7 @@ namespace wfc::input {
 
         public:
 
-        ImageLoader() {}
+        ImageLoader();
         ~ImageLoader() {}
 
         bool addEncoding(Pixel pixel, TileID tile);
@@ -78,7 +78,6 @@ namespace wfc::input {
         Pixel decodeTile(TileID tile);
 
         bool saveAsImage(WaveGrid* grid, const char* filePath);
-        
 
     };
 
@@ -90,7 +89,7 @@ namespace wfc::input {
         int states_;                   // Number of states currently in ruleset
         std::vector<float> weights_;   // Weights of each state
         std::vector<uint32_t> counts_; // Number of each state encountered in input
-        size_t processedStates_;       // Total number of states processed by ruleset 
+        size_t processedTiles_;       // Total number of tiles processed by ruleset 
         std::vector<std::vector<DynamicBitset>> rules_;
 
         public:

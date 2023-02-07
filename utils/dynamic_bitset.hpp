@@ -5,7 +5,7 @@
 
 class DynamicBitset {
 
-    static const int BITS_IN_I32 = sizeof(uint32_t);
+    static const int BITS_IN_I32 = sizeof(uint32_t) * 8;
     
     uint32_t* data_; // bits orientated backwards so lowest order bit at index 0
     size_t size_;
@@ -14,23 +14,30 @@ class DynamicBitset {
     public:
     
     DynamicBitset(size_t n);
+    DynamicBitset(size_t n, bool value);
+    DynamicBitset(const DynamicBitset &other);
     // template <T>
     // DynamicBitset(T data);
     // DynamicBitset(long long data);
-    // DynamicBitset(const DynamicBitset& other);
+
+    protected:
+
+    uint32_t* data() const {return data_;}
+
+    public:
 
     size_t size() const {return size_;}
     bool bit(size_t n) const;
     void setBit(size_t n, bool value);
     
 
-    protected:
+    
 
     size_t blockSize() const {return numBlocks_;}
     uint32_t block(size_t n) const;
     uint32_t setBlock(size_t n, uint32_t block);
 
-    public:
+    
 
     bool isTrue() const;
     

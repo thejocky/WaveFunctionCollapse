@@ -3,19 +3,34 @@
 #include <algorithm>
 
 #include <iostream>
+#include <string.h>
     
 DynamicBitset::DynamicBitset(size_t n) :
-    data_(new uint32_t[n/BITS_IN_I32]{0}),
-    size_(n), numBlocks_(n/BITS_IN_I32)
+    data_(new uint32_t[n/BITS_IN_I32+1]{0}),
+    size_(n), numBlocks_(n/BITS_IN_I32+1)
 {}
-
+DynamicBitset::DynamicBitset(size_t n, bool value) :
+    data_(new uint32_t[n/BITS_IN_I32+1]{value?0xFFFFFFFF:0}),
+    size_(n), numBlocks_(n/BITS_IN_I32+1)
+{}
+DynamicBitset::DynamicBitset(const DynamicBitset &other) :
+    data_(new uint32_t[other.blockSize()]{0}),
+    size_(other.size()), numBlocks_(other.blockSize())
+{
+    memcpy(data_, other.data(), numBlocks_);
+}
 
 bool DynamicBitset::bit(size_t n) const {
-    return data_[n/BITS_IN_I32] & (0x1 << n % BITS_IN_I32);
+    // std::cout << "getting bit: " << n << ' ' << (n % BITS_IN_I32) << ' ' << n/BITS_IN_I32 << ' ' << data_[n/BITS_IN_I32] << '\n';
+    return data_[n/BITS_IN_I32] & (0x1 << (n % BITS_IN_I32));
 }
 void DynamicBitset::setBit(size_t n, bool value) {
     // std::cout << size_  << " : " << n << "\n";
-    data_[n/BITS_IN_I32] |= (0x1 << n % BITS_IN_I32);
+    // std::cout << "setting bit" << n << " : " << n % BITS_IN_I32 << '\n';
+    if (value)
+        data_[n/BITS_IN_I32] |= (0x1 << (n % BITS_IN_I32));
+    else
+        data_[n/BITS_IN_I32] &= ~(0x1 << (n % BITS_IN_I32));
 }
 
 
@@ -44,15 +59,19 @@ bool DynamicBitset::isTrue() const {
 // applys & operation on each bit of self with other bitset
 void DynamicBitset::andOp(const DynamicBitset& src,
         const DynamicBitset& target, DynamicBitset& dest) {
+    // std::cout << "doing and op - " << std::flush;
     for (auto i = 0; i < dest.blockSize(); i++) {
+        // std::cout << "working on bit\n";
         dest.setBlock(i, src.block(i) & target.block(i));
     }
+    // std::cout << "finished and op - " << std::flush;
 }
 
 // applys | operation on each bit of self with other bitset
 void DynamicBitset::orOp(const DynamicBitset& src,
         const DynamicBitset& target, DynamicBitset& dest) {
     for (auto i = 0; i < dest.blockSize(); i++) {
+        // std::cout << "working on block - " << std::flush << target.block(i) << " - " << std::flush;
         dest.setBlock(i, src.block(i) | target.block(i));
     }
 }
@@ -89,6 +108,7 @@ void DynamicBitset::notOp(const DynamicBitset& src, DynamicBitset& dest) {
 
 DynamicBitset& DynamicBitset::operator& (const DynamicBitset& other) {
     DynamicBitset returnVal(size_);
+    // std::cout << "checking other:" << std::flush << other.bit(0) << "\n";
     andOp(*this, other, returnVal);
     return returnVal;
 }
@@ -114,7 +134,9 @@ DynamicBitset& DynamicBitset::operator&= (const DynamicBitset& other) {
     return *this;
 }
 DynamicBitset& DynamicBitset::operator|= (const DynamicBitset& other) {
+    // std::cout << "starting or operation - " << std::flush;
     DynamicBitset::orOp(*this, other, *this);
+    // std::cout << "finsihed\n";
     return *this;
 }
 DynamicBitset& DynamicBitset::operator^= (const DynamicBitset& other) {

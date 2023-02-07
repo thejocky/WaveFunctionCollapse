@@ -16,6 +16,8 @@ namespace wfc {
 
 #include <wave_input_data.hpp>
 
+#include <iostream>
+
 namespace wfc {
 
     class Tile {
@@ -44,6 +46,8 @@ namespace wfc {
             input::RuleSet &rules_);
 
         size_t finalState();
+
+        void printTile();
 
         // void setInternalStates_DEBUG(DynamicBitset states) {states_ = states;}
 
@@ -86,6 +90,8 @@ namespace wfc {
 
         // returns final state as WaveGrid
         input::WaveGrid* saveToWaveGrid();
+
+        void printWave();
 
     };
 
