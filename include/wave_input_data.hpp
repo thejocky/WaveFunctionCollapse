@@ -71,32 +71,56 @@ namespace wfc::input {
         TileID encodePixel(Pixel pixel);
         Pixel decodeTile(TileID tile);
 
+        uint8_t *convertToImage(const WaveGrid *grid);
+        uint8_t *convertToImage(const Wave &wave);
         bool saveAsImage(WaveGrid* grid, const char* filePath);
 
     };
 
-
-
     class RuleSet {
-
-
-        int states_;                   // Number of states currently in ruleset
-        std::vector<float> weights_;   // Weights of each state
-        std::vector<uint32_t> counts_; // Number of each state encountered in input
-        size_t processedTiles_;       // Total number of tiles processed by ruleset 
+        // Number of states currently in ruleset
+        int states_;
+        // Weights of each state, ratio of appearance of state to provided input
+        std::vector<float> weights_;  
+        // Bitset of rules defining possible adjasent tiles
         std::vector<std::vector<DynamicBitset>> rules_;
 
         public:
 
-        RuleSet(uint32_t states);
-        ~RuleSet() {}
+        void reset();
+
+        int numStates() const {return states_;}
+        float getWeight(int state) const {return weights_[state];}
+        DynamicBitset& getRule(int state, WaveDirection direction) const;
+    };
+
+    class RuleSetBuilder {
+
+        // Current set of rules held by builder
+        RuleSet rules_;
+        // Number of each state encountered in input used in getting weights
+        std::vector<uint32_t> counts_;
+        // Total number of tiles processed by ruleset used in getting weights
+        size_t processedTiles_;
+        
+
+        public:
+
+        RuleSetBuilder();
+        ~RuleSetBuilder() {}
 
         private:
         void updateWeights();
 
         public:
 
-        int getStates() {return states_;}
+        const RuleSet* referenceRuleSet() {return &rules_;}
+        RuleSet* createRuleSet() {return new RuleSet(rules_);}
+
+        int getStates() {return rules_.numStates();}
+        float getWeight(int state) {return rules_.getWeight(state);}
+        DynamicBitset& getRule(int state, WaveDirection direction)
+            {return rules_.getRule(state, direction);}
         
 
         bool addInput(const WaveGrid& grid);
@@ -108,9 +132,6 @@ namespace wfc::input {
         void reset();
 
         // bool loadToFile(const char* path);
-
-        float getWeight(int state) {return weights_[state];}
-        DynamicBitset& getRule(int state, WaveDirection direction);
         
     };
 

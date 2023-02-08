@@ -55,31 +55,33 @@ namespace wfc {
 
         Array2D<Tile*> waveGrid_;
         std::forward_list<Tile*> entropySorted_; // Tiles in grid sorted by entropy 
-        bool collapsed_;
+        bool collapsed_; // If the wave is in a collapsed state
         
-        input::RuleSet *rules_;
+        input::RuleSet const *rules_;
+        bool rulesOwnership_; // If Wave class has ownership of rules
 
         public:
 
-        
-
-        Wave(size_t width, size_t height, size_t states, input::RuleSet *rules);
-        
+        Wave(size_t width, size_t height);
         ~Wave() {}
 
-        
+        private:
 
         // Returns tile with the lowest entropy in grid
         Coords lowestEntropy();
-
         // Callapse tile based on weights
         bool collapseTile(Coords position);
-
         // Propigate any changes from collapsed tile
         bool propigate();
 
+        public:
+
         // collapse lowest entropy tile until full grid is collapsed or collision occurs
         bool collapse();
+
+        bool reset();
+
+        void loadRules(const input::RuleSet *rules, bool ownership = false);
 
         // returns final state as WaveGrid
         input::WaveGrid* saveToWaveGrid();

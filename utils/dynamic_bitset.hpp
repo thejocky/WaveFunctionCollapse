@@ -16,6 +16,8 @@ class DynamicBitset {
     DynamicBitset(size_t n);
     DynamicBitset(size_t n, bool value);
     DynamicBitset(const DynamicBitset &other);
+
+    ~DynamicBitset();
     // template <T>
     // DynamicBitset(T data);
     // DynamicBitset(long long data);
