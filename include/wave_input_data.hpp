@@ -4,6 +4,7 @@ namespace wfc::input {
     class WaveGrid;
     class ImageLoader;
     class RuleSet;
+    class RuleSetBuilder;
 }
 
 #include <wave.hpp>
@@ -33,7 +34,7 @@ namespace wfc::input {
         // void expandStates(uint32_t num);
 
         protected:
-        TileID* getInternalData() {return data_;}
+        TileID* getInternalData() const {return data_;}
 
         public:
 
@@ -73,11 +74,15 @@ namespace wfc::input {
 
         uint8_t *convertToImage(const WaveGrid *grid);
         uint8_t *convertToImage(const Wave &wave);
-        bool saveAsImage(WaveGrid* grid, const char* filePath);
+        bool saveAsImage(const WaveGrid *grid, const char* filePath);
+        bool saveAsImage(const Wave &wave, const char* filePath);
 
     };
 
     class RuleSet {
+        protected:
+        friend class RuleSetBuilder;
+
         // Number of states currently in ruleset
         int states_;
         // Weights of each state, ratio of appearance of state to provided input
@@ -85,9 +90,11 @@ namespace wfc::input {
         // Bitset of rules defining possible adjasent tiles
         std::vector<std::vector<DynamicBitset>> rules_;
 
+        void reset();
+
         public:
 
-        void reset();
+        RuleSet();
 
         int numStates() const {return states_;}
         float getWeight(int state) const {return weights_[state];}

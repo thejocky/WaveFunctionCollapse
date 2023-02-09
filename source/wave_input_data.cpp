@@ -17,6 +17,9 @@ namespace wfc::input {
         pixel(red, blue, green, 0xFF);
     }
 
+
+    // WaveGrid Class Definition ----------------------------------------------
+
     WaveGrid::WaveGrid(uint32_t width, uint32_t height) :
         width_(width), height_(height), data_(new TileID[width*height]{NULL}),
         numStates_(0)
@@ -43,6 +46,8 @@ namespace wfc::input {
     }
 
 
+    // ImageLoader Class Definition -------------------------------------------
+
     ImageLoader::ImageLoader() :
         usedTiles(0)
     {}
@@ -62,24 +67,55 @@ namespace wfc::input {
         addDecoding(usedTiles, pixel);
         return usedTiles;
     }
-
     Pixel ImageLoader::decodeTile(TileID tile) {
         Pixel pixel = decodingMap_[tile];
         if (!pixel) std::cout << "TILE HAS NO CORISPONDING PIXEL TO DECODE TO.\n";
         return pixel;
     }
 
-    bool ImageLoader::saveAsImage(WaveGrid* grid, const char* filePath) {
+    uint8_t *ImageLoader::convertToImage(const WaveGrid *grid) {
         uint8_t* data = new uint8_t[grid->width()*grid->height() * 4];
-        for (int y = 0; y < grid->height(); y++) {
-            for (int x = 0; x < grid->width(); x++) {
-                Pixel pixel = decodeTile(grid->getTile(x, y));
-                memcpy(data + (x+y*grid->width())*4, &pixel, 4);
-            }
-        }
-        stbi_write_png(filePath, grid->width(), grid->height(), 4, data, 0);
-
+        memcpy(data, grid->getInternalData(), grid->width()*grid->height() * 4);
+        return data;
     }
+    uint8_t *ImageLoader::convertToImage(const Wave &wave) {
+        WaveGrid* grid = wave.saveToWaveGrid();
+        uint8_t* data = convertToImage(grid);
+        delete grid;
+        return data;
+    }
+
+    bool ImageLoader::saveAsImage(const WaveGrid* grid, const char* filePath) {
+        uint8_t* data = convertToImage(grid);
+        stbi_write_png(filePath, grid->width(), grid->height(), 4, data, 0);
+        delete[] data;
+    }
+    bool ImageLoader::saveAsImage(const Wave &wave, const char* filePath) {
+        WaveGrid* grid = wave.saveToWaveGrid();
+        bool returnVal = saveAsImage(grid, filePath);
+        delete grid;
+        return returnVal;
+    }
+
+
+    // RuleSet Class Definition -----------------------------------------------
+
+    void RuleSet::reset() {
+        states_ = 0;
+        weights_.clear();
+        rules_.clear();
+    }
+
+    RuleSet::RuleSet() : 
+        states_(0)
+    {}
+
+    getRule(int state, WaveDirection direction) {
+        
+    }
+
+
+    // RuleSetBuilder Class Definition ----------------------------------------
 
     RuleSet::RuleSet(uint32_t states) :
         states_(states), weights_(states, 0), counts_(states,0), processedTiles_(0),

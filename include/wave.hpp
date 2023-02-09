@@ -84,7 +84,7 @@ namespace wfc {
         void loadRules(const input::RuleSet *rules, bool ownership = false);
 
         // returns final state as WaveGrid
-        input::WaveGrid* saveToWaveGrid();
+        input::WaveGrid* saveToWaveGrid() const;
 
         void printWave();
 
