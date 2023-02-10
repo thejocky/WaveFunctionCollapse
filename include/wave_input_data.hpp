@@ -90,15 +90,23 @@ namespace wfc::input {
         // Bitset of rules defining possible adjasent tiles
         std::vector<std::vector<DynamicBitset>> rules_;
 
-        void reset();
-
         public:
 
         RuleSet();
 
+        protected:
+
+        void reset();
+
+        void expandRuleSet(int size);
+        void setWeight(int state, float value);
+        void setRule(int state, WaveDirection direction);
+
+        public:
+
         int numStates() const {return states_;}
         float getWeight(int state) const {return weights_[state];}
-        DynamicBitset& getRule(int state, WaveDirection direction) const;
+        const DynamicBitset& getRule(int state, WaveDirection direction) const;
     };
 
     class RuleSetBuilder {
@@ -126,7 +134,7 @@ namespace wfc::input {
 
         int getStates() {return rules_.numStates();}
         float getWeight(int state) {return rules_.getWeight(state);}
-        DynamicBitset& getRule(int state, WaveDirection direction)
+        const DynamicBitset& getRule(int state, WaveDirection direction)
             {return rules_.getRule(state, direction);}
         
 

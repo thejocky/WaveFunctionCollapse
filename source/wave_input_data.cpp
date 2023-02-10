@@ -100,26 +100,29 @@ namespace wfc::input {
 
     // RuleSet Class Definition -----------------------------------------------
 
+    RuleSet::RuleSet() : 
+        states_(0)
+    {}
+
     void RuleSet::reset() {
         states_ = 0;
         weights_.clear();
         rules_.clear();
     }
 
-    RuleSet::RuleSet() : 
-        states_(0)
-    {}
-
-    getRule(int state, WaveDirection direction) {
+    void RuleSet::expandRuleSet(int size) {
         
+    }
+
+    const DynamicBitset& RuleSet::getRule(int state, WaveDirection direction) const {
+        return rules_[state][direction];
     }
 
 
     // RuleSetBuilder Class Definition ----------------------------------------
 
-    RuleSet::RuleSet(uint32_t states) :
-        states_(states), weights_(states, 0), counts_(states,0), processedTiles_(0),
-        rules_(4, std::vector<DynamicBitset>(states, DynamicBitset(states, false)))
+    RuleSetBuilder::RuleSetBuilder() :
+        processedTiles_(0)
     {}
 
     void RuleSet::updateWeights() {
