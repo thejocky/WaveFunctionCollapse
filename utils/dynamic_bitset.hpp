@@ -1,15 +1,15 @@
 #pragma once
 
 #include <cstdlib>
-#include <bitset>
+// #include <bitset>
+#include <vector>
 
 class DynamicBitset {
 
     static const int BITS_IN_I32 = sizeof(uint32_t) * 8;
     
-    uint32_t* data_; // bits orientated backwards so lowest order bit at index 0
+    std::vector<uint32_t> data_; // bits orientated backwards so lowest order bit at index 0
     size_t size_;
-    size_t numBlocks_;
 
     public:
     
@@ -24,20 +24,19 @@ class DynamicBitset {
 
     protected:
 
-    uint32_t* data() const {return data_;}
+    const std::vector<uint32_t> &data() const {return data_;}
 
     public:
+
+    void expand(size_t size);
 
     size_t size() const {return size_;}
     bool bit(size_t n) const;
     void setBit(size_t n, bool value);
-    
 
-    
-
-    size_t blockSize() const {return numBlocks_;}
+    size_t blockSize() const {return data_.size();}
     uint32_t block(size_t n) const;
-    uint32_t setBlock(size_t n, uint32_t block);
+    void setBlock(size_t n, uint32_t block);
 
     
 

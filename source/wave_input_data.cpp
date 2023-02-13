@@ -111,7 +111,12 @@ namespace wfc::input {
     }
 
     void RuleSet::expandRuleSet(int size) {
-        
+        weights_.resize(size);
+        for (auto &directionRules : rules_) {
+            for (auto &rule : directionRules)
+                rule.expand(size);
+            directionRules.resize(size, size);
+        }
     }
 
     const DynamicBitset& RuleSet::getRule(int state, WaveDirection direction) const {
@@ -125,17 +130,18 @@ namespace wfc::input {
         processedTiles_(0)
     {}
 
-    void RuleSet::updateWeights() {
-        for (int i = 0; i < states_; i++) {
-            weights_[i] = (float)counts_[i] / processedTiles_;
+    void RuleSetBuilder::updateWeights() {
+        for (int i = 0; i < rules_.numStates(); i++) {
+            rules_.setWeight((float)counts_[i] / processedTiles_, i);
         }
     }
 
-    bool RuleSet::addInput(const WaveGrid& grid) {
+    bool RuleSetBuilder::addInput(const WaveGrid& grid) {
         uint32_t state;
-        if (grid.numStates() > states_) {
-            std::cerr << "ERROR INPUT DATA USED STATES ABOVE CAPACITY OF RULESET.\n";
-            return false;
+        if (grid.numStates() > rules_.numStates()) {
+            rules_.expandRuleSet(grid.numStates());
+            // std::cerr << "ERROR INPUT DATA USED STATES ABOVE CAPACITY OF RULESET.\n";
+            // return false;
         }
 
         for (int y = 0; y < grid.width(); y++) {
@@ -166,7 +172,7 @@ namespace wfc::input {
         return true;
     }
 
-    bool RuleSet::addImageData(uint8_t* image, uint32_t width, uint32_t height, uint32_t channels, ImageLoader& loader) {
+    bool RuleSetBuilder::addImageData(uint8_t* image, uint32_t width, uint32_t height, uint32_t channels, ImageLoader& loader) {
         WaveGrid grid(width, height);
         Pixel setAlpha = 0; // Set alpha or-ed with each pixel
         if (channels == 3) setAlpha = pixel(0, 0, 0, 0xFF);
@@ -181,7 +187,7 @@ namespace wfc::input {
         return addInput(grid);
     }
 
-    bool RuleSet::addImage(const char* path, ImageLoader& loader) {
+    bool RuleSetBuilder::addImage(const char* path, ImageLoader& loader) {
         int width, height, nrChannels;
         unsigned char* data;
 
@@ -192,7 +198,7 @@ namespace wfc::input {
         return returnVal;
     }
 
-    void RuleSet::reset() {
+    void RuleSetBuilder::reset() {
         rules_[0].clear();
         rules_[1].clear();
         rules_[2].clear();
@@ -200,7 +206,7 @@ namespace wfc::input {
     }
 
 
-    DynamicBitset& RuleSet::getRule(int state, WaveDirection direction) {
+    DynamicBitset& RuleSetBuilder::getRule(int state, WaveDirection direction) {
         return rules_[direction][state];
     }
 

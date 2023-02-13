@@ -6,18 +6,18 @@
 #include <string.h>
     
 DynamicBitset::DynamicBitset(size_t n) :
-    data_(new uint32_t[n/BITS_IN_I32+1]{0}),
-    size_(n), numBlocks_(n/BITS_IN_I32+1)
+    data_(n/BITS_IN_I32+1, 0), size_(n)
 {}
 DynamicBitset::DynamicBitset(size_t n, bool value) :
-    data_(new uint32_t[n/BITS_IN_I32+1]{value?0xFFFFFFFF:0}),
-    size_(n), numBlocks_(n/BITS_IN_I32+1)
+    data_(n/BITS_IN_I32+1, value?0xFFFFFFFF:0), size_(n)
 {}
 DynamicBitset::DynamicBitset(const DynamicBitset &other) :
-    data_(new uint32_t[other.blockSize()]{0}),
-    size_(other.size()), numBlocks_(other.blockSize())
-{
-    memcpy(data_, other.data(), numBlocks_);
+    data_(other.data()), size_(other.size())
+{}
+
+void DynamicBitset::expand(size_t size) {
+    if (size < size_) {std::cerr << "ERROR: Expanded size is less than current\n"; return;} 
+    data_.resize(size/BITS_IN_I32 + 1, 0);
 }
 
 bool DynamicBitset::bit(size_t n) const {
@@ -32,20 +32,16 @@ void DynamicBitset::setBit(size_t n, bool value) {
 
 
 uint32_t DynamicBitset::block(size_t n) const {
-    if (n >= numBlocks_) return 0;
     return data_[n/BITS_IN_I32];
 }
-uint32_t DynamicBitset::setBlock(size_t n, uint32_t block) {
-    if (n >= numBlocks_) return 0;
-    uint32_t tmp = data_[n/BITS_IN_I32];
+void DynamicBitset::setBlock(size_t n, uint32_t block) {
     data_[n/BITS_IN_I32] = block;
-    return tmp;
 }
 
 
 bool DynamicBitset::isTrue() const {
-    for (auto i = 0; i < numBlocks_; i++) {
-        if (data_[i]) return true;
+    for (auto block : data_) {
+        if (block) return true;
     }
     return false;
 }
