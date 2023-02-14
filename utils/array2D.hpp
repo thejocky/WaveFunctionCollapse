@@ -14,8 +14,8 @@ template <typename T> class Array2D {
         : ySize_(y), xSize_(x),
             data_(new T[y*x]{NULL}) {}
 
-    size_t yLen() {return ySize_;}
-    size_t xLen() {return xSize_;}
+    size_t yLen() const {return ySize_;}
+    size_t xLen() const {return xSize_;}
 
     T index(size_t y, size_t x) {
         return data_[y*xSize_ + x];
@@ -28,6 +28,10 @@ template <typename T> class Array2D {
     }
 
     T* operator[](size_t index) {
+        return data_ + (index*xSize_);
+    }
+
+    const T* operator[](size_t index) const {
         return data_ + (index*xSize_);
     }
 

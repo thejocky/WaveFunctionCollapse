@@ -25,7 +25,7 @@ namespace wfc {
             return -1;
         }
 
-        for (int i = 0; i < rules.getStates(); i++) {
+        for (int i = 0; i < rules.numStates(); i++) {
             if (states_.bit(i) == true && rules.getWeight(i)) {
                 weightSum_ += rules.getWeight(i);
                 sumXLog += rules.getWeight(i) * log(rules.getWeight(i));
@@ -51,7 +51,7 @@ namespace wfc {
         } while (number > 0);
         states_.setBit(i, true);
         finalState_ = i;
-        while (i < rules.getStates()-2) {
+        while (i < rules.numStates()-2) {
             i++;
             states_.setBit(i, false);
         }
@@ -123,8 +123,8 @@ namespace wfc {
 
 
 
-    Wave::Wave(size_t width, size_t height, size_t states, input::RuleSet *rules) :
-        waveGrid_(height, width), rules_(rules), collapsed_(false)
+    Wave::Wave(size_t width, size_t height) :
+        waveGrid_(height, width), collapsed_(false)
     {
         srand(time(0));
         for (int y = 0; y < waveGrid_.yLen(); y++) {
@@ -191,7 +191,7 @@ namespace wfc {
         return true;
     }
 
-    input::WaveGrid* Wave::saveToWaveGrid() {
+    input::WaveGrid* Wave::saveToWaveGrid() const {
         if (!collapsed_) return nullptr;
         input::WaveGrid *output = new input::WaveGrid(waveGrid_.xLen(), waveGrid_.yLen());
         for (int x = 0; x < waveGrid_.xLen(); x++) {

@@ -100,7 +100,7 @@ namespace wfc::input {
 
         void expandRuleSet(int size);
         void setWeight(int state, float value);
-        void setRule(int state, WaveDirection direction);
+        void setRule(int state, WaveDirection direction, int targetState);
 
         public:
 

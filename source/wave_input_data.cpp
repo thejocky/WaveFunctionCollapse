@@ -119,8 +119,16 @@ namespace wfc::input {
         }
     }
 
+    void RuleSet::setWeight(int state, float value) {
+        weights_[state] = value;
+    }
+
+    void RuleSet::setRule(int state, WaveDirection direction, int targetState) {
+        rules_[direction][state].setBit(targetState, true);
+    }
+
     const DynamicBitset& RuleSet::getRule(int state, WaveDirection direction) const {
-        return rules_[state][direction];
+        return rules_[direction][state];
     }
 
 
@@ -153,19 +161,19 @@ namespace wfc::input {
                 
                 // Set upward as rule
                 if (y != 0)
-                    rules_[WaveDirection::UP][state].setBit(grid.getTile(x, y-1)-1, true);
+                    rules_.setRule(state, WaveDirection::UP, grid.getTile(x, y-1)-1);
                 
                 // Set leftward as rule
                 if (x != 0)
-                    rules_[WaveDirection::LEFT][state].setBit(grid.getTile(x-1, y)-1, true);
-
-                // Set rightward as rule
-                if (y != grid.height()-1) 
-                    rules_[WaveDirection::DOWN][state].setBit(grid.getTile(x, y+1)-1, true);   
+                    rules_.setRule(state, WaveDirection::LEFT, grid.getTile(x-1, y)-1);
 
                 // Set downward as rule
+                if (y != grid.height()-1) 
+                    rules_.setRule(state, WaveDirection::DOWN, grid.getTile(x, y+1)-1);  
+
+                // Set rightward as rule
                 if (x != grid.width()-1)
-                    rules_[WaveDirection::RIGHT][state].setBit(grid.getTile(x+1, y)-1, true);
+                    rules_.setRule(state, WaveDirection::RIGHT, grid.getTile(x+1, y)-1);
             }
         }
         updateWeights();
@@ -199,15 +207,9 @@ namespace wfc::input {
     }
 
     void RuleSetBuilder::reset() {
-        rules_[0].clear();
-        rules_[1].clear();
-        rules_[2].clear();
-        rules_[3].clear();
-    }
-
-
-    DynamicBitset& RuleSetBuilder::getRule(int state, WaveDirection direction) {
-        return rules_[direction][state];
+        rules_.reset();
+        counts_.clear();
+        processedTiles_ = 0;
     }
 
 }
