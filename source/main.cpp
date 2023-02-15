@@ -10,7 +10,7 @@ int main () {
     ruleBuilder.addImage("../test_files/input_2.png", imageLoader);
 
     wfc::Wave wave(100, 100);
-    wave.loadRules(ruleBuilder.referenceRuleSet());
+    wave.initialize(ruleBuilder.referenceRuleSet());
 
     // input::WaveGrid* 
     for (int i = 0; i < 10; i++) {

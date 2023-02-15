@@ -54,11 +54,14 @@ namespace wfc {
     class Wave {
 
         Array2D<Tile*> waveGrid_;
+        bool initialized_; // If waveGrid has been populated with Tiles
+
         std::forward_list<Tile*> entropySorted_; // Tiles in grid sorted by entropy 
         bool collapsed_; // If the wave is in a collapsed state
         
         input::RuleSet const *rules_;
         bool rulesOwnership_; // If Wave class has ownership of rules
+
 
         public:
 
@@ -75,6 +78,8 @@ namespace wfc {
         bool propigate();
 
         public:
+
+        void initialize(const input::RuleSet *rules, bool ownership = false);
 
         // collapse lowest entropy tile until full grid is collapsed or collision occurs
         bool collapse();

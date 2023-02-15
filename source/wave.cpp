@@ -124,14 +124,14 @@ namespace wfc {
 
 
     Wave::Wave(size_t width, size_t height) :
-        waveGrid_(height, width), collapsed_(false)
+        waveGrid_(height, width), collapsed_(false), initialized_(false)
     {
         srand(time(0));
-        for (int y = 0; y < waveGrid_.yLen(); y++) {
-            for (int x = 0; x < waveGrid_.xLen(); x++) {
-                waveGrid_[y][x] = new Tile(states, *rules);
-            }
-        }
+        // for (int y = 0; y < waveGrid_.yLen(); y++) {
+        //     for (int x = 0; x < waveGrid_.xLen(); x++) {
+        //         waveGrid_[y][x] = new Tile(states, *rules);
+        //     }
+        // }
     }
 
 
