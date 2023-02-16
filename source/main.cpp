@@ -1,6 +1,9 @@
 #include <wfc.hpp>
 
 int main () {
+
+
+
     uint8_t* finalImages[10] = {nullptr};
 
     wfc::input::ImageLoader imageLoader;
@@ -19,18 +22,20 @@ int main () {
         wave.reset();
     }
 
-    imageLoader.saveAsImage(finalImages[0], 100, 100, "../test_files/output1.png");
-    imageLoader.saveAsImage(finalImages[1], 100, 100, "../test_files/output2.png");
-    imageLoader.saveAsImage(finalImages[2], 100, 100, "../test_files/output3.png");
-    imageLoader.saveAsImage(finalImages[3], 100, 100, "../test_files/output4.png");
-    imageLoader.saveAsImage(finalImages[4], 100, 100, "../test_files/output5.png");
-    imageLoader.saveAsImage(finalImages[5], 100, 100, "../test_files/output6.png");
-    imageLoader.saveAsImage(finalImages[6], 100, 100, "../test_files/output7.png");
-    imageLoader.saveAsImage(finalImages[7], 100, 100, "../test_files/output8.png");
-    imageLoader.saveAsImage(finalImages[8], 100, 100, "../test_files/output9.png");
-    imageLoader.saveAsImage(finalImages[9], 100, 100, "../test_files/output10.png");
+    const char *outputFiles[10] = {
+        "../test_files/output1.png",
+        "../test_files/output2.png",
+        "../test_files/output3.png",
+        "../test_files/output4.png",
+        "../test_files/output5.png",
+        "../test_files/output6.png",
+        "../test_files/output7.png",
+        "../test_files/output8.png",
+        "../test_files/output9.png",
+        "../test_files/output10.png"
+    };
 
+    for (int i = 0; i < 10; i++)
+        imageLoader.saveAsImage(finalImages[i], 100, 100, outputFiles[i]);
     
-
-
 }
