@@ -19,6 +19,17 @@ int main () {
         wave.reset();
     }
 
+    imageLoader.saveAsImage(finalImages[0], 100, 100, "../test_files/output1.png");
+    imageLoader.saveAsImage(finalImages[1], 100, 100, "../test_files/output2.png");
+    imageLoader.saveAsImage(finalImages[2], 100, 100, "../test_files/output3.png");
+    imageLoader.saveAsImage(finalImages[3], 100, 100, "../test_files/output4.png");
+    imageLoader.saveAsImage(finalImages[4], 100, 100, "../test_files/output5.png");
+    imageLoader.saveAsImage(finalImages[5], 100, 100, "../test_files/output6.png");
+    imageLoader.saveAsImage(finalImages[6], 100, 100, "../test_files/output7.png");
+    imageLoader.saveAsImage(finalImages[7], 100, 100, "../test_files/output8.png");
+    imageLoader.saveAsImage(finalImages[8], 100, 100, "../test_files/output9.png");
+    imageLoader.saveAsImage(finalImages[9], 100, 100, "../test_files/output10.png");
+
     
 
 

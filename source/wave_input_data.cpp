@@ -85,9 +85,13 @@ namespace wfc::input {
         return data;
     }
 
+    bool ImageLoader::saveAsImage(const uint8_t *data, size_t width,
+                        size_t height, const char* filePath) {
+        stbi_write_png(filePath, width, height, 4, data, 0);
+    }
     bool ImageLoader::saveAsImage(const WaveGrid* grid, const char* filePath) {
         uint8_t* data = convertToImage(grid);
-        stbi_write_png(filePath, grid->width(), grid->height(), 4, data, 0);
+        saveAsImage(data, grid->width(), grid->height(), filePath);
         delete[] data;
     }
     bool ImageLoader::saveAsImage(const Wave &wave, const char* filePath) {

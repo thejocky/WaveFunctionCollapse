@@ -74,6 +74,9 @@ namespace wfc::input {
 
         uint8_t *convertToImage(const WaveGrid *grid);
         uint8_t *convertToImage(const Wave &wave);
+        
+        inline bool saveAsImage(const uint8_t *data, size_t width,
+            size_t height, const char* filePath);
         bool saveAsImage(const WaveGrid *grid, const char* filePath);
         bool saveAsImage(const Wave &wave, const char* filePath);
 

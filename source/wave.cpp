@@ -10,14 +10,14 @@
 
 namespace wfc {
 
-    Tile::Tile(size_t numberOfStates, input::RuleSet &rules) :
-        states_(numberOfStates, true),
+    Tile::Tile(const input::RuleSet &rules) :
+        states_(rules.numStates(), true),
         collapsed_(false), finalState_(false)
     {
         updateEntropy(rules);
     }
 
-    double Tile::updateEntropy(input::RuleSet &rules) {
+    double Tile::updateEntropy(const input::RuleSet &rules) {
         weightSum_ = 0;
         double sumXLog = 0;
         if (collapsed_) {
@@ -35,7 +35,7 @@ namespace wfc {
         return entropy_;
     }
 
-    void Tile::collapse(input::RuleSet &rules) {
+    void Tile::collapse(const input::RuleSet &rules) {
         collapsed_ = true;
         // Generate random number in range 0-weightSum
         double number = ((double)(rand()) / RAND_MAX) * weightSum_;
@@ -59,7 +59,7 @@ namespace wfc {
     }
 
     void Tile::enforceRule(Coords position, Array2D<Tile*> &waveGrid,
-            input::RuleSet &rules, DynamicBitset &enforcedRule) {
+            const input::RuleSet &rules, DynamicBitset &enforcedRule) {
         bool changed = false; // if rule changes state
         for (int i = 0; i < states_.blockSize(); i++) {
             if (states_.block(i) & (~enforcedRule.block(i))) {
@@ -77,7 +77,7 @@ namespace wfc {
     }
 
     void Tile::propagate(Coords position, Array2D<Tile*> &waveGrid,
-            input::RuleSet &rules) {
+            const input::RuleSet &rules) {
         DynamicBitset ruleUp(states_.size());
         DynamicBitset ruleDown(states_.size());
         DynamicBitset ruleLeft(states_.size());
@@ -134,6 +134,19 @@ namespace wfc {
         // }
     }
 
+    // Builds wave grid based on provided rules
+    void Wave::initialize(const input::RuleSet *rules, bool ownership = false) {
+        if (initialized_) {
+            std::cerr << "INITIALIZATION WARNING: ALREADY INITIALIZED\n";
+            return;
+        }
+        for (int y = 0; y < waveGrid_.yLen(); y++) {
+            for (int x = 0; x < waveGrid_.xLen(); x++) {
+                waveGrid_[y][x] = new Tile(*rules);
+            }
+        }
+    }
+
 
 
 
@@ -169,6 +182,7 @@ namespace wfc {
         waveGrid_[position.y][position.x]->collapse(*rules_);
         waveGrid_[position.y][position.x]->propagate(position, waveGrid_, *rules_);
     }
+
 
 
     // collapse lowest entropy tile until full grid is collapsed or collision occurs
@@ -216,11 +230,11 @@ namespace wfc {
 
 
 int main() {
-    std::cout << "starting main\n";
-    wfc::input::ImageLoader loader;
-    wfc::input::RuleSet rules(80);
-    if (!rules.addImage("../test_files/grid_test.png", loader)) return 1;
-    std::cout << "Loaded Image\n";
+    // std::cout << "starting main\n";
+    // wfc::input::ImageLoader loader;
+    // wfc::input::RuleSet rules(80);
+    // if (!rules.addImage("../test_files/grid_test.png", loader)) return 1;
+    // std::cout << "Loaded Image\n";
 
 
     // int width, height, nrChannels;
@@ -250,15 +264,15 @@ int main() {
     //     std::cout << ", " << rules.getWeight(i);
     // }
 
-    wfc::Wave wave(100, 100, 80, &rules);
-    std::cout << "created wave\n";
+    // wfc::Wave wave(100, 100, 80, &rules);
+    // std::cout << "created wave\n";
 
-    wave.collapse();
-    std::cout << "collapsed wave\n";
+    // wave.collapse();
+    // std::cout << "collapsed wave\n";
 
-    wfc::input::WaveGrid *grid = wave.saveToWaveGrid(); 
-    std::cout << "saved to wavegrid\n";
-    // std::cout << grid << "\n";
-    loader.saveAsImage(grid, "../test_files/output_2.png");
+    // wfc::input::WaveGrid *grid = wave.saveToWaveGrid(); 
+    // std::cout << "saved to wavegrid\n";
+    // // std::cout << grid << "\n";
+    // loader.saveAsImage(grid, "../test_files/output_2.png");
 
 }

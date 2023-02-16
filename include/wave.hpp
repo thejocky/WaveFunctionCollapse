@@ -29,21 +29,21 @@ namespace wfc {
 
         public:
 
-        Tile (size_t numberOfStates, input::RuleSet &rules);
+        Tile (const input::RuleSet &rules);
 
         ~Tile() {}
 
-        double updateEntropy(input::RuleSet &rules);
+        double updateEntropy(const input::RuleSet &rules);
         double entropy() {return entropy_;}
 
 
-        void collapse(input::RuleSet &rules);
+        void collapse(const input::RuleSet &rules);
 
         void enforceRule(Coords position, Array2D<Tile*> &waveGrid_,
-            input::RuleSet &rules_, DynamicBitset &rule_);
+            const input::RuleSet &rules_, DynamicBitset &rule_);
 
         void propagate(Coords position, Array2D<Tile*> &waveGrid_,
-            input::RuleSet &rules_);
+            const input::RuleSet &rules_);
 
         size_t finalState();
 
@@ -59,7 +59,7 @@ namespace wfc {
         std::forward_list<Tile*> entropySorted_; // Tiles in grid sorted by entropy 
         bool collapsed_; // If the wave is in a collapsed state
         
-        input::RuleSet const *rules_;
+        input::RuleSet *rules_;
         bool rulesOwnership_; // If Wave class has ownership of rules
 
 
@@ -68,18 +68,18 @@ namespace wfc {
         Wave(size_t width, size_t height);
         ~Wave() {}
 
+        void initialize(const input::RuleSet *rules, bool ownership = false);
+
         private:
 
         // Returns tile with the lowest entropy in grid
         Coords lowestEntropy();
         // Callapse tile based on weights
         bool collapseTile(Coords position);
-        // Propigate any changes from collapsed tile
-        bool propigate();
+        // // Propigate any changes from collapsed tile
+        // bool propigate();
 
         public:
-
-        void initialize(const input::RuleSet *rules, bool ownership = false);
 
         // collapse lowest entropy tile until full grid is collapsed or collision occurs
         bool collapse();
