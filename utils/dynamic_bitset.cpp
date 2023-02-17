@@ -29,7 +29,12 @@ void DynamicBitset::setBit(size_t n, bool value) {
     else
         data_[n/BITS_IN_I32] &= ~(0x1 << (n % BITS_IN_I32));
 }
-
+void DynamicBitset::setAll(bool value) {
+    for (int i = 0; i < data_.size()-1; i++)
+        data_[i] = value? 0xFFFFFFFF : 0;
+    for (int i = 0; i < size_%BITS_IN_I32; i++) 
+        setBit(BITS_IN_I32*(data_.size()-1) + i, value);
+}
 
 uint32_t DynamicBitset::block(size_t n) const {
     return data_[n/BITS_IN_I32];

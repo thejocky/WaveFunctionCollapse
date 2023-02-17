@@ -3,6 +3,7 @@
 #include <cstdlib>
 // #include <bitset>
 #include <vector>
+#include <stdint.h>
 
 class DynamicBitset {
 
@@ -17,7 +18,7 @@ class DynamicBitset {
     DynamicBitset(size_t n, bool value);
     DynamicBitset(const DynamicBitset &other);
 
-    ~DynamicBitset();
+    // ~DynamicBitset();
     // template <T>
     // DynamicBitset(T data);
     // DynamicBitset(long long data);
@@ -33,6 +34,8 @@ class DynamicBitset {
     size_t size() const {return size_;}
     bool bit(size_t n) const;
     void setBit(size_t n, bool value);
+
+    void setAll(bool value);
 
     size_t blockSize() const {return data_.size();}
     uint32_t block(size_t n) const;
