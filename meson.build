@@ -8,7 +8,7 @@ incdir = include_directories(['include', '.'])
 
 
 util_src_files = []
-src_files = ['utils/dynamic_bitset.cpp', 'source/wave.cpp', 'source/wave_input_data.cpp']
+src_files = ['source/main.cpp', 'utils/dynamic_bitset.cpp', 'source/wave.cpp', 'source/wave_input_data.cpp']
 
 exe = executable('wfc', src_files,
   install : true, include_directories : incdir)

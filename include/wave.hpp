@@ -33,6 +33,8 @@ namespace wfc {
 
         ~Tile() {}
 
+        void reset();
+
         double updateEntropy(const input::RuleSet &rules);
         double entropy() {return entropy_;}
 
@@ -59,7 +61,7 @@ namespace wfc {
         std::forward_list<Tile*> entropySorted_; // Tiles in grid sorted by entropy 
         bool collapsed_; // If the wave is in a collapsed state
         
-        input::RuleSet *rules_;
+        const input::RuleSet *rules_;
         bool rulesOwnership_; // If Wave class has ownership of rules
 
 
@@ -85,8 +87,6 @@ namespace wfc {
         bool collapse();
 
         bool reset();
-
-        void loadRules(const input::RuleSet *rules, bool ownership = false);
 
         // returns final state as WaveGrid
         input::WaveGrid* saveToWaveGrid() const;

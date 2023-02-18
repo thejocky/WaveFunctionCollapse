@@ -105,7 +105,7 @@ namespace wfc::input {
     // RuleSet Class Definition -----------------------------------------------
 
     RuleSet::RuleSet() : 
-        states_(0)
+        states_(0), rules_(4)
     {}
 
     void RuleSet::reset() {
@@ -115,6 +115,7 @@ namespace wfc::input {
     }
 
     void RuleSet::expandRuleSet(int size) {
+        int states_ = size;
         weights_.resize(size);
         for (auto &directionRules : rules_) {
             for (auto &rule : directionRules)
@@ -143,15 +144,20 @@ namespace wfc::input {
     {}
 
     void RuleSetBuilder::updateWeights() {
+        std::cout << "updating weights: " << rules_.numStates() << "\n";
         for (int i = 0; i < rules_.numStates(); i++) {
-            rules_.setWeight((float)counts_[i] / processedTiles_, i);
+            std::cout << "setting weight " << (((float)counts_[i]) / processedTiles_) << "\n";
+            rules_.setWeight(((float)counts_[i]) / processedTiles_, i);
         }
     }
 
     bool RuleSetBuilder::addInput(const WaveGrid& grid) {
         uint32_t state;
+        std::cout << "adding input: " << grid.numStates() << " " << rules_.numStates() << "\n";
         if (grid.numStates() > rules_.numStates()) {
+            std::cout << "expanding ruleset\n";
             rules_.expandRuleSet(grid.numStates());
+            counts_.resize(grid.numStates());
             // std::cerr << "ERROR INPUT DATA USED STATES ABOVE CAPACITY OF RULESET.\n";
             // return false;
         }
@@ -170,11 +176,9 @@ namespace wfc::input {
                 // Set leftward as rule
                 if (x != 0)
                     rules_.setRule(state, WaveDirection::LEFT, grid.getTile(x-1, y)-1);
-
                 // Set downward as rule
                 if (y != grid.height()-1) 
                     rules_.setRule(state, WaveDirection::DOWN, grid.getTile(x, y+1)-1);  
-
                 // Set rightward as rule
                 if (x != grid.width()-1)
                     rules_.setRule(state, WaveDirection::RIGHT, grid.getTile(x+1, y)-1);
@@ -190,6 +194,7 @@ namespace wfc::input {
         if (channels == 3) setAlpha = pixel(0, 0, 0, 0xFF);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
+                // std::cout << "loading pixel\n";
                 Pixel pixel;
                 memcpy(&pixel, image + (x+y*width)*channels, channels);
                 pixel |= setAlpha;
@@ -202,7 +207,6 @@ namespace wfc::input {
     bool RuleSetBuilder::addImage(const char* path, ImageLoader& loader) {
         int width, height, nrChannels;
         unsigned char* data;
-
         data = stbi_load(path, &width, &height, &nrChannels, 0);
         if (!data) {std::cerr << "ERRROR OPENING IMAGE: " << path << "\n"; return false;}
         auto returnVal = addImageData(data, width, height, nrChannels, loader);
