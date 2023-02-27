@@ -37,10 +37,10 @@ void DynamicBitset::setAll(bool value) {
 }
 
 uint32_t DynamicBitset::block(size_t n) const {
-    return data_[n/BITS_IN_I32];
+    return data_[n];
 }
 void DynamicBitset::setBlock(size_t n, uint32_t block) {
-    data_[n/BITS_IN_I32] = block;
+    data_[n] = block;
 }
 
 
@@ -57,9 +57,11 @@ bool DynamicBitset::isTrue() const {
 // applys & operation on each bit of self with other bitset
 void DynamicBitset::andOp(const DynamicBitset& src,
         const DynamicBitset& target, DynamicBitset& dest) {
+    // std::cout << "anding operation: " << src.size() << ' ' << target.size() << ' ' << dest.size() << ' ' << dest.blockSize() << ' ' << src.bit(75) << '-' << target.bit(75);
     for (auto i = 0; i < dest.blockSize(); i++) {
         dest.setBlock(i, src.block(i) & target.block(i));
     }
+    // std::cout << '-' << dest.bit(75) << '\n';
 }
 
 // applys | operation on each bit of self with other bitset

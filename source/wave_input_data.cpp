@@ -87,14 +87,17 @@ namespace wfc::input {
 
     bool ImageLoader::saveAsImage(const uint8_t *data, size_t width,
                         size_t height, const char* filePath) {
+        std::cout << "Saving image\n";
         stbi_write_png(filePath, width, height, 4, data, 0);
     }
     bool ImageLoader::saveAsImage(const WaveGrid* grid, const char* filePath) {
+        std::cout << "Saving grid as image\n";
         uint8_t* data = convertToImage(grid);
         saveAsImage(data, grid->width(), grid->height(), filePath);
         delete[] data;
     }
     bool ImageLoader::saveAsImage(const Wave &wave, const char* filePath) {
+        std::cout << "Saving wave as image\n";
         WaveGrid* grid = wave.saveToWaveGrid();
         bool returnVal = saveAsImage(grid, filePath);
         delete grid;
@@ -115,7 +118,7 @@ namespace wfc::input {
     }
 
     void RuleSet::expandRuleSet(int size) {
-        int states_ = size;
+        states_ = size;
         weights_.resize(size);
         for (auto &directionRules : rules_) {
             for (auto &rule : directionRules)
@@ -147,7 +150,7 @@ namespace wfc::input {
         std::cout << "updating weights: " << rules_.numStates() << "\n";
         for (int i = 0; i < rules_.numStates(); i++) {
             std::cout << "setting weight " << (((float)counts_[i]) / processedTiles_) << "\n";
-            rules_.setWeight(((float)counts_[i]) / processedTiles_, i);
+            rules_.setWeight(i, ((float)counts_[i]) / processedTiles_);
         }
     }
 

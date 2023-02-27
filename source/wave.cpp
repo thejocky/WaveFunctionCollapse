@@ -23,22 +23,23 @@ namespace wfc {
     }
 
     double Tile::updateEntropy(const input::RuleSet &rules) {
-        std::cout << "updating entropy\n";
+        // std::cout << "updating entropy " << rules.numStates() << "\n";
         weightSum_ = 0;
         double sumXLog = 0;
         if (collapsed_) {
             entropy_ = -1; 
             return -1;
         }
-        std::cout << "checked for collapse\n";
+        // std::cout << "checked for collapse\n";
 
         for (int i = 0; i < rules.numStates(); i++) {
+            // std::cout << "checking weight: " << i << " " << states_.bit(i) << " " << rules.getWeight(i) << '\n';
             if (states_.bit(i) == true && rules.getWeight(i)) {
                 weightSum_ += rules.getWeight(i);
                 sumXLog += rules.getWeight(i) * log(rules.getWeight(i));
             }
         }
-        std::cout << "calculated sums " << weightSum_ << "\n";
+        // std::cout << "calculated sums " << weightSum_ << "\n";
         entropy_ = log(weightSum_) - (sumXLog / weightSum_);
         return entropy_;
     }
@@ -68,7 +69,7 @@ namespace wfc {
 
     void Tile::enforceRule(Coords position, Array2D<Tile*> &waveGrid,
             const input::RuleSet &rules, DynamicBitset &enforcedRule) {
-        std::cout << "enforcing rule\n";
+        // std::cout << "enforcing rule\n";
         bool changed = false; // if rule changes state
         for (int i = 0; i < states_.blockSize(); i++) {
             if (states_.block(i) & (~enforcedRule.block(i))) {
@@ -76,16 +77,16 @@ namespace wfc {
                 break;
             }
         }
-        std::cout << "finished checking for change\n";
+        // std::cout << "finished checking for change\n";
 
         states_ &= enforcedRule;
         
-        std::cout << "changed state\n";
+        // std::cout << "changed state\n";
         if (changed) {
             updateEntropy(rules);
             propagate(position, waveGrid, rules);
         }
-        std::cout << "end of enforcing rule\n";
+        // std::cout << "end of enforcing rule\n";
     }
 
     void Tile::propagate(Coords position, Array2D<Tile*> &waveGrid,
@@ -94,7 +95,7 @@ namespace wfc {
         DynamicBitset ruleDown(rules.numStates());
         DynamicBitset ruleLeft(rules.numStates());
         DynamicBitset ruleRight(rules.numStates());
-        std::cout << "created directional rules\n";
+        // std::cout << "created directional rules\n";
 
         for (int i = 0; i < states_.size(); i++) {
             if (states_.bit(i)) {
@@ -104,7 +105,7 @@ namespace wfc {
                 ruleRight |= rules.getRule(i, WaveDirection::RIGHT);
             }
         }
-        std::cout << "set directional rules\n";
+        // std::cout << "set directional rules\n";
         
         if (position.y < waveGrid.yLen()-1)
             waveGrid[position.y+1][position.x]->enforceRule({position.x, position.y+1},
@@ -162,7 +163,7 @@ namespace wfc {
         }
         rules_ = rules;
         rulesOwnership_ = ownership;
-        std::cout << "initailized state: " << rules->getWeight(0);
+        // std::cout << "initailized state: " << rules->getWeight(0);
     }
 
 
@@ -208,9 +209,9 @@ namespace wfc {
         std::cout << "wave grid size: " << waveGrid_[0][0] << '\n';
         waveGrid_[0][0]->propagate({0,0}, waveGrid_, *rules_);
         std::cout << "finished initial propagation\n";
-        printWave();
-        std::string dummy;
-        std::cin >> dummy;
+        // printWave();
+        // std::string dummy;
+        // std::cin >> dummy;
         if (collapsed_) return false;
         Coords location;
         std::cout << "getting entropy\n";
