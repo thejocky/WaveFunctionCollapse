@@ -17,7 +17,7 @@ int main () {
     ruleBuilder.addImage("../test_files/input_2.png", imageLoader);
     
     std::cout << "Creating wave\n";
-    wfc::Wave wave(20, 20);
+    wfc::Wave wave(100, 100);
     wave.initialize(ruleBuilder.referenceRuleSet());
 
     // input::WaveGrid* 
@@ -46,8 +46,11 @@ int main () {
         "../test_files/output10.png"
     };
 
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < 1; i++) {
         imageLoader.saveAsImage(finalImages[i], 100, 100, outputFiles[i]);
+    }
+    
+    imageLoader.saveAsImage(wave, outputFiles[1]);
 
     std::cout << "num states: " << ruleBuilder.referenceRuleSet()->getRule(0, wfc::WaveDirection::DOWN).size() << '\n';
     

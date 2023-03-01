@@ -206,15 +206,15 @@ namespace wfc {
 
     // collapse lowest entropy tile until full grid is collapsed or collision occurs
     bool Wave::collapse() {
-        std::cout << "wave grid size: " << waveGrid_[0][0] << '\n';
+        // std::cout << "wave grid size: " << waveGrid_[0][0] << '\n';
         waveGrid_[0][0]->propagate({0,0}, waveGrid_, *rules_);
-        std::cout << "finished initial propagation\n";
+        // std::cout << "finished initial propagation\n";
         // printWave();
         // std::string dummy;
         // std::cin >> dummy;
         if (collapsed_) return false;
         Coords location;
-        std::cout << "getting entropy\n";
+        // std::cout << "getting entropy\n";
         location = lowestEntropy();
         while (!collapsed_) {
             std::cout << "collapsing\n";
@@ -223,7 +223,7 @@ namespace wfc {
 
             location = lowestEntropy();
         }
-        printWave();
+        // printWave();
 
         return true;
     }

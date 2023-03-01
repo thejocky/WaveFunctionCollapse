@@ -74,8 +74,16 @@ namespace wfc::input {
     }
 
     uint8_t *ImageLoader::convertToImage(const WaveGrid *grid) {
-        uint8_t* data = new uint8_t[grid->width()*grid->height() * 4];
-        memcpy(data, grid->getInternalData(), grid->width()*grid->height() * 4);
+        uint8_t* data = new uint8_t[grid->width() * grid->height() * 4];
+        for (int y = 0; y < grid->height(); y++) {
+            for (int x = 0; x < grid->width(); x++) {
+                // std::cout << grid->getTile(x, y) << "\n";
+                Pixel pixel = decodeTile(grid->getTile(x, y));
+                // std::cout << pixel << "\n";
+                memcpy(data + (x+y*grid->width())*4, &pixel, 4);
+            }
+        }
+        // memcpy(data, grid->getInternalData(), grid->width()*grid->height() * 4);
         return data;
     }
     uint8_t *ImageLoader::convertToImage(const Wave &wave) {
@@ -87,17 +95,17 @@ namespace wfc::input {
 
     bool ImageLoader::saveAsImage(const uint8_t *data, size_t width,
                         size_t height, const char* filePath) {
-        std::cout << "Saving image\n";
-        stbi_write_png(filePath, width, height, 4, data, 0);
+        // std::cout << "Saving image: " << (long long int)data << "\n";
+        stbi_write_png(filePath, width, height, 4, data, 4*width);
     }
     bool ImageLoader::saveAsImage(const WaveGrid* grid, const char* filePath) {
-        std::cout << "Saving grid as image\n";
+        // std::cout << "Saving grid as image\n";
         uint8_t* data = convertToImage(grid);
         saveAsImage(data, grid->width(), grid->height(), filePath);
         delete[] data;
     }
     bool ImageLoader::saveAsImage(const Wave &wave, const char* filePath) {
-        std::cout << "Saving wave as image\n";
+        // std::cout << "Saving wave as image\n";
         WaveGrid* grid = wave.saveToWaveGrid();
         bool returnVal = saveAsImage(grid, filePath);
         delete grid;
@@ -147,18 +155,18 @@ namespace wfc::input {
     {}
 
     void RuleSetBuilder::updateWeights() {
-        std::cout << "updating weights: " << rules_.numStates() << "\n";
+        // std::cout << "updating weights: " << rules_.numStates() << "\n";
         for (int i = 0; i < rules_.numStates(); i++) {
-            std::cout << "setting weight " << (((float)counts_[i]) / processedTiles_) << "\n";
+            // std::cout << "setting weight " << (((float)counts_[i]) / processedTiles_) << "\n";
             rules_.setWeight(i, ((float)counts_[i]) / processedTiles_);
         }
     }
 
     bool RuleSetBuilder::addInput(const WaveGrid& grid) {
         uint32_t state;
-        std::cout << "adding input: " << grid.numStates() << " " << rules_.numStates() << "\n";
+        // std::cout << "adding input: " << grid.numStates() << " " << rules_.numStates() << "\n";
         if (grid.numStates() > rules_.numStates()) {
-            std::cout << "expanding ruleset\n";
+            // std::cout << "expanding ruleset\n";
             rules_.expandRuleSet(grid.numStates());
             counts_.resize(grid.numStates());
             // std::cerr << "ERROR INPUT DATA USED STATES ABOVE CAPACITY OF RULESET.\n";
