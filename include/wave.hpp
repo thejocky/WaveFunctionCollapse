@@ -27,9 +27,11 @@ namespace wfc {
         bool collapsed_;
         size_t finalState_; // Once collapsed is the final state
 
+        int* propagations_TMP_;
+
         public:
 
-        Tile (const input::RuleSet &rules);
+        Tile (const input::RuleSet &rules, int* propagations_TMP);
 
         ~Tile() {}
 
@@ -64,6 +66,7 @@ namespace wfc {
         const input::RuleSet *rules_;
         bool rulesOwnership_; // If Wave class has ownership of rules
 
+        int propagations_TMP_;
 
         public:
 

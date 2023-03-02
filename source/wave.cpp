@@ -10,9 +10,9 @@
 
 namespace wfc {
 
-    Tile::Tile(const input::RuleSet &rules) :
+    Tile::Tile(const input::RuleSet &rules, int* propagations_TMP) :
         states_(rules.numStates(), true),
-        collapsed_(false), finalState_(false)
+        collapsed_(false), finalState_(false), propagations_TMP_(propagations_TMP)
     {
         updateEntropy(rules);
     }
@@ -69,28 +69,34 @@ namespace wfc {
 
     void Tile::enforceRule(Coords position, Array2D<Tile*> &waveGrid,
             const input::RuleSet &rules, DynamicBitset &enforcedRule) {
+        // std::cout << "enforcing rule: " << states_.blockSize() << " - " << std::flush;
+        if (collapsed_) return;
         // std::cout << "enforcing rule\n";
         bool changed = false; // if rule changes state
         for (int i = 0; i < states_.blockSize(); i++) {
             if (states_.block(i) & (~enforcedRule.block(i))) {
+                // std::cout << "setting changed to true - " << std::flush;
                 changed = true;
                 break;
             }
         }
-        // std::cout << "finished checking for change\n";
-
+        std::cout << '\n';
+        // std::cout << "finished checking for change : " << (int)changed << " - " << std::flush;
         states_ &= enforcedRule;
         
-        // std::cout << "changed state\n";
+        // std::cout << "changed state and end of enforcing rule: " << changed << "\n";
+        // std::cout << "post enforce test\n";
         if (changed) {
             updateEntropy(rules);
             propagate(position, waveGrid, rules);
         }
-        // std::cout << "end of enforcing rule\n";
+    
     }
 
     void Tile::propagate(Coords position, Array2D<Tile*> &waveGrid,
             const input::RuleSet &rules) {
+        std::cout << "propagation depth: " << ++*propagations_TMP_ << '\n';
+        // std::cout << "propagating\n";
         DynamicBitset ruleUp(rules.numStates());
         DynamicBitset ruleDown(rules.numStates());
         DynamicBitset ruleLeft(rules.numStates());
@@ -140,7 +146,7 @@ namespace wfc {
 
 
     Wave::Wave(size_t width, size_t height) :
-        waveGrid_(height, width), collapsed_(false), initialized_(false)
+        waveGrid_(height, width), collapsed_(false), initialized_(false), propagations_TMP_(0)
     {
         srand(time(0));
         // for (int y = 0; y < waveGrid_.yLen(); y++) {
@@ -158,7 +164,7 @@ namespace wfc {
         }
         for (int y = 0; y < waveGrid_.yLen(); y++) {
             for (int x = 0; x < waveGrid_.xLen(); x++) {
-                waveGrid_[y][x] = new Tile(*rules);
+                waveGrid_[y][x] = new Tile(*rules, &propagations_TMP_);
             }
         }
         rules_ = rules;
