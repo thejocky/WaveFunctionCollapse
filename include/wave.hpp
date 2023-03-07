@@ -3,7 +3,9 @@
 namespace wfc {
     class Tile;
     class Wave;
-    enum WaveDirection {UP=0, RIGHT=1, DOWN=2, LEFT=3};
+    // UP RIGHT DOWN and LEFT are used for indexing ruleset,
+    // NONE is only used as default direction 
+    enum WaveDirection {UP=0, RIGHT=1, DOWN=2, LEFT=3, NONE};
     struct Coords {int x; int y;};
 }
 
@@ -13,6 +15,7 @@ namespace wfc {
 #include <cstddef>
 #include <bitset>
 #include <forward_list>
+#include <stdexcept>
 
 #include <wave_input_data.hpp>
 
@@ -29,6 +32,34 @@ namespace wfc {
 
         int* propagations_TMP_;
 
+        static constexpr int QUEUE_SIZE = 1024;
+
+
+        struct PropagationTarget {
+            Coords coords; WaveDirection direction;
+        };
+        template<typename T, int SIZE>
+        class PropagationQueue {
+            int begin_;
+            int end_;
+            T data_[SIZE];
+            public:
+            PropagationQueue() :
+                begin_(0), end_(0)
+            {}
+            inline void push(T value) {
+                data_[end_] = T;
+                if (++end_ >= SIZE) end_=0;
+                if (end_ == begin_) {end_--; throw std::overflow_error("Stack overflow in propagation queue");}
+            }
+            inline T pop() {
+                if (end_ == begin_) throw std::underflow_error("Stack overflow in propagation queue");
+                T tmp = data[begin_];
+                if (++begin_ >= SIZE) begin_=0;
+            }
+            inline bool empty() {return begin_ == end_;}
+        };
+
         public:
 
         Tile (const input::RuleSet &rules, int* propagations_TMP);
@@ -43,11 +74,17 @@ namespace wfc {
 
         void collapse(const input::RuleSet &rules);
 
-        void enforceRule(Coords position, Array2D<Tile*> &waveGrid_,
-            const input::RuleSet &rules_, DynamicBitset &rule_);
+        static void propagate(Coords position, Array2D<Tile*> &waveGrid_, const input::RuleSet &rules_);
 
-        void propagate(Coords position, Array2D<Tile*> &waveGrid_,
-            const input::RuleSet &rules_);
+        void enforceRule(Coords position, Array2D<Tile*> &waveGrid_,
+            const input::RuleSet &rules_, DynamicBitset &rule_,
+            PropagationQueue<PropagationTarget, QUEUE_SIZE> &queue,
+            WaveDirection direction = WaveDirection::NONE);
+
+        void localPropagate(
+            Coords position, Array2D<Tile*> &waveGrid, const input::RuleSet &rules,
+            PropagationQueue<PropagationTarget, QUEUE_SIZE> &queue, 
+            WaveDirection direction = WaveDirection::NONE);
 
         size_t finalState();
 
