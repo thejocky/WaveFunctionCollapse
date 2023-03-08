@@ -74,17 +74,22 @@ namespace wfc {
         queue.push({position, WaveDirection::NONE});
         while (!queue.empty()) {
             target = queue.pop();
+            // std::cout << "Propagating Tile: " << target.coords.x << ", " << target.coords.y << '\n';
             waveGrid_[target.coords.y][target.coords.x]
                 ->localPropagate(target.coords, waveGrid_, rules_,
                                  queue, target.direction);
+            if (queue.size() > 500) 
+                std::cout << "Queue Length: " << queue.size() << '\n';
         }
-
+        // std::cout << '\n';
 
 
     }
 
     void Tile::enforceRule(Coords position, Array2D<Tile*> &waveGrid,
-            const input::RuleSet &rules, DynamicBitset &enforcedRule, WaveDirection direction) {
+            const input::RuleSet &rules, DynamicBitset &enforcedRule,
+            PropagationQueue<PropagationTarget, QUEUE_SIZE> &queue,
+            WaveDirection direction) {
         // std::cout << "enforcing rule: " << states_.blockSize() << " - " << std::flush;
         if (collapsed_) return;
         // std::cout << "enforcing rule\n";
@@ -104,14 +109,14 @@ namespace wfc {
         // std::cout << "post enforce test\n";
         if (changed) {
             updateEntropy(rules);
-            
+            queue.push({position, direction});
         }
     }
 
     void Tile::localPropagate(Coords position, Array2D<Tile*> &waveGrid,
             const input::RuleSet &rules,
             PropagationQueue<PropagationTarget, QUEUE_SIZE> &queue, 
-            WaveDirection direction = WaveDirection::NONE) {
+            WaveDirection direction) {
         // std::cout << "propagation depth: " << ++*propagations_TMP_ << '\n';
         // std::cout << "propagating\n";
         DynamicBitset ruleUp(rules.numStates());
@@ -131,20 +136,20 @@ namespace wfc {
         // std::cout << "set directional rules\n";
         
         // Enforce rule down
-        if ((direction != WaveDirection::DOWN) && position.y < waveGrid.yLen()-1 )
-            waveGrid[position.y+1][position.x]->enforceRule({position.x, position.y+1},
-                                                waveGrid, rules, ruleDown, WaveDirection::DOWN);
+        if ((direction != WaveDirection::UP) && position.y < waveGrid.yLen()-1 )
+            waveGrid[position.y+1][position.x]->enforceRule({position.x, position.y+1}, waveGrid,
+                                                rules, ruleDown, queue, WaveDirection::DOWN);
         // Enforce rule up
-        if ((direction != WaveDirection::UP) && position.y > 0)
-            waveGrid[position.y-1][position.x]->enforceRule({position.x, position.y-1},
-                                               waveGrid, rules, ruleUp, WaveDirection::UP);
+        if ((direction != WaveDirection::DOWN) && position.y > 0)
+            waveGrid[position.y-1][position.x]->enforceRule({position.x, position.y-1}, waveGrid,
+                                               rules, ruleUp, queue, WaveDirection::UP);
         // Enforce Rule left
         if ((direction != WaveDirection::RIGHT) && position.x < waveGrid.xLen()-1)
-            waveGrid[position.y][position.x+1]->enforceRule({position.x+1, position.y},
-                                                waveGrid, rules, ruleLeft, WaveDirection::LEFT);
+            waveGrid[position.y][position.x+1]->enforceRule({position.x+1, position.y}, waveGrid,
+                                                rules, ruleLeft, queue, WaveDirection::LEFT);
         if ((direction != WaveDirection::LEFT) && position.x > 0)
-            waveGrid[position.y][position.x-1]->enforceRule({position.x-1, position.y},
-                                                waveGrid, rules, ruleRight, WaveDirection::RIGHT);
+            waveGrid[position.y][position.x-1]->enforceRule({position.x-1, position.y}, waveGrid,
+                                                rules, ruleRight, queue, WaveDirection::RIGHT);
         
         
         (*propagations_TMP_)--;
@@ -228,7 +233,7 @@ namespace wfc {
     // Callapse tile based on weights
     bool Wave::collapseTile(Coords position) {
         waveGrid_[position.y][position.x]->collapse(*rules_);
-        waveGrid_[position.y][position.x]->localPropagate(position, waveGrid_, *rules_);
+        Tile::propagate(position, waveGrid_, *rules_);
     }
 
 
@@ -236,7 +241,7 @@ namespace wfc {
     // collapse lowest entropy tile until full grid is collapsed or collision occurs
     bool Wave::collapse() {
         // std::cout << "wave grid size: " << waveGrid_[0][0] << '\n';
-        waveGrid_[0][0]->localPropagate({0,0}, waveGrid_, *rules_);
+        Tile::propagate({0,0}, waveGrid_, *rules_);
         // std::cout << "finished initial propagation\n";
         // printWave();
         // std::string dummy;

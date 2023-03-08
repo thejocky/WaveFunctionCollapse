@@ -22,7 +22,7 @@ int main () {
 
     // input::WaveGrid* 
     std::cout << "collapsing wave\n";
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 1; i++) {
         std::cout << "collapsing iteration\n";
         wave.collapse();
         std::cout << "converting to image\n";
@@ -46,7 +46,7 @@ int main () {
         "../test_files/output10.png"
     };
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 1; i++) {
         imageLoader.saveAsImage(finalImages[i], 100, 100, outputFiles[i]);
     }
     
@@ -54,7 +54,6 @@ int main () {
 
     std::cout << "num states: " << ruleBuilder.referenceRuleSet()->getRule(0, wfc::WaveDirection::DOWN).size() << '\n';
 
-    std::cout << "Size of propagation object: " << sizeof(wfc::Tile::PropagationTarget) << '\n';
-    
+   
     // std::cout << "finished\n";
 }

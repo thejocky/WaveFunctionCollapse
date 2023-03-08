@@ -48,15 +48,17 @@ namespace wfc {
                 begin_(0), end_(0)
             {}
             inline void push(T value) {
-                data_[end_] = T;
+                data_[end_] = value;
                 if (++end_ >= SIZE) end_=0;
                 if (end_ == begin_) {end_--; throw std::overflow_error("Stack overflow in propagation queue");}
             }
             inline T pop() {
                 if (end_ == begin_) throw std::underflow_error("Stack overflow in propagation queue");
-                T tmp = data[begin_];
+                T tmp = data_[begin_];
                 if (++begin_ >= SIZE) begin_=0;
+                return tmp;
             }
+            inline int size() {return (end_ - begin_) % SIZE;}
             inline bool empty() {return begin_ == end_;}
         };
 
@@ -76,8 +78,8 @@ namespace wfc {
 
         static void propagate(Coords position, Array2D<Tile*> &waveGrid_, const input::RuleSet &rules_);
 
-        void enforceRule(Coords position, Array2D<Tile*> &waveGrid_,
-            const input::RuleSet &rules_, DynamicBitset &rule_,
+        void enforceRule(Coords position, Array2D<Tile*> &waveGrid,
+            const input::RuleSet &rules, DynamicBitset &enforcedRule,
             PropagationQueue<PropagationTarget, QUEUE_SIZE> &queue,
             WaveDirection direction = WaveDirection::NONE);
 
