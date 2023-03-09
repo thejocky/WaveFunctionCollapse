@@ -68,6 +68,7 @@ namespace wfc::input {
         return usedTiles;
     }
     Pixel ImageLoader::decodeTile(TileID tile) {
+        if (tile==0) return 0;
         Pixel pixel = decodingMap_[tile];
         if (!pixel) std::cout << "TILE HAS NO CORISPONDING PIXEL TO DECODE TO.\n";
         return pixel;
@@ -95,17 +96,14 @@ namespace wfc::input {
 
     bool ImageLoader::saveAsImage(const uint8_t *data, size_t width,
                         size_t height, const char* filePath) {
-        // std::cout << "Saving image: " << (long long int)data << "\n";
         stbi_write_png(filePath, width, height, 4, data, 4*width);
     }
     bool ImageLoader::saveAsImage(const WaveGrid* grid, const char* filePath) {
-        // std::cout << "Saving grid as image\n";
         uint8_t* data = convertToImage(grid);
         saveAsImage(data, grid->width(), grid->height(), filePath);
         delete[] data;
     }
     bool ImageLoader::saveAsImage(const Wave &wave, const char* filePath) {
-        // std::cout << "Saving wave as image\n";
         WaveGrid* grid = wave.saveToWaveGrid();
         bool returnVal = saveAsImage(grid, filePath);
         delete grid;

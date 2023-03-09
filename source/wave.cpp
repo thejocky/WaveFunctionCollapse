@@ -136,18 +136,18 @@ namespace wfc {
         // std::cout << "set directional rules\n";
         
         // Enforce rule down
-        if ((direction != WaveDirection::UP) && position.y < waveGrid.yLen()-1 )
+        if (position.y < waveGrid.yLen()-1 )
             waveGrid[position.y+1][position.x]->enforceRule({position.x, position.y+1}, waveGrid,
                                                 rules, ruleDown, queue, WaveDirection::DOWN);
         // Enforce rule up
-        if ((direction != WaveDirection::DOWN) && position.y > 0)
+        if ( position.y > 0)
             waveGrid[position.y-1][position.x]->enforceRule({position.x, position.y-1}, waveGrid,
                                                rules, ruleUp, queue, WaveDirection::UP);
         // Enforce Rule left
-        if ((direction != WaveDirection::RIGHT) && position.x < waveGrid.xLen()-1)
+        if (position.x < waveGrid.xLen()-1)
             waveGrid[position.y][position.x+1]->enforceRule({position.x+1, position.y}, waveGrid,
                                                 rules, ruleLeft, queue, WaveDirection::LEFT);
-        if ((direction != WaveDirection::LEFT) && position.x > 0)
+        if (position.x > 0)
             waveGrid[position.y][position.x-1]->enforceRule({position.x-1, position.y}, waveGrid,
                                                 rules, ruleRight, queue, WaveDirection::RIGHT);
         
@@ -236,7 +236,9 @@ namespace wfc {
         Tile::propagate(position, waveGrid_, *rules_);
     }
 
-
+    void Wave::collapseLowestEntropy() {
+        collapseTile(lowestEntropy());
+    }
 
     // collapse lowest entropy tile until full grid is collapsed or collision occurs
     bool Wave::collapse() {
@@ -247,17 +249,17 @@ namespace wfc {
         // std::string dummy;
         // std::cin >> dummy;
         if (collapsed_) return false;
-        Coords location;
         // std::cout << "getting entropy\n";
-        location = lowestEntropy();
+        // location = lowestEntropy();
         while (!collapsed_) {
-            // std::cout << "collapsing\n";
-            collapseTile(location);
-        // std::cout << "getting entropy\n";
+            collapseLowestEntropy();
+        //     // std::cout << "collapsing\n";
+        //     collapseTile(location);
+        // // std::cout << "getting entropy\n";
 
-            location = lowestEntropy();
+        //     location = lowestEntropy();
         }
-        // printWave();
+        printWave();
 
         return true;
     }
@@ -271,11 +273,13 @@ namespace wfc {
     }
 
     input::WaveGrid* Wave::saveToWaveGrid() const {
-        if (!collapsed_) return nullptr;
         input::WaveGrid *output = new input::WaveGrid(waveGrid_.xLen(), waveGrid_.yLen());
         for (int x = 0; x < waveGrid_.xLen(); x++) {
             for (int y = 0; y < waveGrid_.yLen(); y++) {
-                output->setTile(x, y, waveGrid_[y][x]->finalState()+1);
+                if (waveGrid_[y][x]->collapsed())
+                    output->setTile(x, y, waveGrid_[y][x]->finalState()+1);
+                else 
+                    output->setTile(x, y, 0);
             }
         }
         return output;

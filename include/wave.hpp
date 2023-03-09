@@ -68,6 +68,8 @@ namespace wfc {
 
         ~Tile() {}
 
+        bool collapsed() {return collapsed_;}
+
         void reset();
 
         double updateEntropy(const input::RuleSet &rules);
@@ -112,6 +114,8 @@ namespace wfc {
         Wave(size_t width, size_t height);
         ~Wave() {}
 
+        bool collapsed() {return collapsed_;}
+
         void initialize(const input::RuleSet *rules, bool ownership = false);
 
         private:
@@ -124,6 +128,8 @@ namespace wfc {
         // bool propigate();
 
         public:
+
+        void collapseLowestEntropy();
 
         // collapse lowest entropy tile until full grid is collapsed or collision occurs
         bool collapse();
