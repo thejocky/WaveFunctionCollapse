@@ -1,6 +1,7 @@
 #include <wfc.hpp>
 
 #include <iostream>
+#include<windows.h>
 
 int main () {
 
@@ -21,13 +22,19 @@ int main () {
     wave.initialize(ruleBuilder.referenceRuleSet());
 std::string dummy;
     while (!wave.collapsed()) {
-        std::cout << "collapsing lowest entropy\n";
+    // for (int i = 0; i < 8000; i++) {
+        // std::cout << "collapsing lowest entropy\n";
         wave.collapseLowestEntropy();
-        std::cout << "Saving as image\n";
-        imageLoader.saveAsImage(wave, "../test_files/output1.png");
-        std::cin >> dummy;
+        // std::cout << "Saving as image\n";
+        // imageLoader.saveAsImage(wave, "../test_files/output1.png");
+        // std::cin >> dummy;
+        // Sleep(10);
 
     }
+    // wave.printWave();
+    // std::cout << "green rule down for sky: " << ruleBuilder.referenceRuleSet()->getRule(6, wfc::WaveDirection::RIGHT).bit(0) << '\n'; 
+    std::cout << "Saving as image\n";
+        imageLoader.saveAsImage(wave, "../test_files/output1.png");
 
     // // input::WaveGrid* 
     // std::cout << "collapsing wave\n";

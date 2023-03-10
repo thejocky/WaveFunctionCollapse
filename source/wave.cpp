@@ -143,13 +143,13 @@ namespace wfc {
         if ( position.y > 0)
             waveGrid[position.y-1][position.x]->enforceRule({position.x, position.y-1}, waveGrid,
                                                rules, ruleUp, queue, WaveDirection::UP);
-        // Enforce Rule left
+        // Enforce Rule Right
         if (position.x < waveGrid.xLen()-1)
             waveGrid[position.y][position.x+1]->enforceRule({position.x+1, position.y}, waveGrid,
-                                                rules, ruleLeft, queue, WaveDirection::LEFT);
+                                                rules, ruleRight, queue, WaveDirection::RIGHT);
         if (position.x > 0)
             waveGrid[position.y][position.x-1]->enforceRule({position.x-1, position.y}, waveGrid,
-                                                rules, ruleRight, queue, WaveDirection::RIGHT);
+                                                rules, ruleLeft, queue, WaveDirection::LEFT);
         
         
         (*propagations_TMP_)--;
