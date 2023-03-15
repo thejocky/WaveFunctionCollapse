@@ -76,7 +76,7 @@ namespace wfc {
         double entropy() {return entropy_;}
 
 
-        void collapse(const input::RuleSet &rules);
+        void collapse(const input::RuleSet &rules, Coords position);
 
         static void propagate(Coords position, Array2D<Tile*> &waveGrid_, const input::RuleSet &rules_);
 

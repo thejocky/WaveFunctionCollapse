@@ -44,11 +44,13 @@ namespace wfc {
         return entropy_;
     }
 
-    void Tile::collapse(const input::RuleSet &rules) {
+    void Tile::collapse(const input::RuleSet &rules, Coords position) {
+        if (collapsed_) return;
+        // printTile();
         collapsed_ = true;
         // Generate random number in range 0-weightSum
         double number = ((double)(rand()) / RAND_MAX) * weightSum_;
-
+        // std::cout << ' ' << number << ' ' << weightSum_ << ' ';
         // Find which state random number falls under
         int i = -1;
         do {
@@ -58,6 +60,7 @@ namespace wfc {
                 states_.setBit(i, false);
             }
         } while (number > 0);
+        // std::cout << i << ' ' << number << ' ' << position.x << ',' << position.y << '\n'; 
         states_.setBit(i, true);
         finalState_ = i;
         while (i < rules.numStates()-2) {
@@ -101,16 +104,15 @@ namespace wfc {
                 break;
             }
         }
+        if (!changed) return;
         // std::cout << '\n';
         // std::cout << "finished checking for change : " << (int)changed << " - " << std::flush;
         states_ &= enforcedRule;
         
         // std::cout << "changed state and end of enforcing rule: " << changed << "\n";
         // std::cout << "post enforce test\n";
-        if (changed) {
-            updateEntropy(rules);
-            queue.push({position, direction});
-        }
+        updateEntropy(rules);
+        queue.push({position, direction});
     }
 
     void Tile::localPropagate(Coords position, Array2D<Tile*> &waveGrid,
@@ -232,7 +234,7 @@ namespace wfc {
 
     // Callapse tile based on weights
     bool Wave::collapseTile(Coords position) {
-        waveGrid_[position.y][position.x]->collapse(*rules_);
+        waveGrid_[position.y][position.x]->collapse(*rules_, position);
         Tile::propagate(position, waveGrid_, *rules_);
     }
 
