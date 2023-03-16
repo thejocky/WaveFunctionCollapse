@@ -17,9 +17,10 @@ namespace wfc {
         updateEntropy(rules);
     }
 
-    void Tile::reset() {
+    void Tile::reset(const input::RuleSet &rules) {
         collapsed_ = false;
         states_.setAll(true);
+        updateEntropy(rules);
     }
 
     double Tile::updateEntropy(const input::RuleSet &rules) {
@@ -49,7 +50,7 @@ namespace wfc {
         // printTile();
         collapsed_ = true;
         // Generate random number in range 0-weightSum
-        double number = ((double)(rand()) / RAND_MAX) * weightSum_;
+        double number = ((double)(rand()) / (RAND_MAX+1)) * weightSum_;
         // std::cout << ' ' << number << ' ' << weightSum_ << ' ';
         // Find which state random number falls under
         int i = -1;
@@ -59,7 +60,7 @@ namespace wfc {
                 number -= rules.getWeight(i);
                 states_.setBit(i, false);
             }
-        } while (number > 0);
+        } while (number >= 0);
         // std::cout << i << ' ' << number << ' ' << position.x << ',' << position.y << '\n'; 
         states_.setBit(i, true);
         finalState_ = i;
@@ -81,8 +82,8 @@ namespace wfc {
             waveGrid_[target.coords.y][target.coords.x]
                 ->localPropagate(target.coords, waveGrid_, rules_,
                                  queue, target.direction);
-            if (queue.size() > 500) 
-                std::cout << "Queue Length: " << queue.size() << '\n';
+            // if (queue.size() > 500) 
+            //     std::cout << "Queue Length: " << queue.size() << '\n';
         }
         // std::cout << '\n';
 
@@ -261,15 +262,16 @@ namespace wfc {
 
         //     location = lowestEntropy();
         }
-        printWave();
+        // printWave();
 
         return true;
     }
 
     bool Wave::reset() {
+        collapsed_ = false;
         for (int y = 0; y < waveGrid_.yLen(); y++) {
             for (int x = 0; x < waveGrid_.xLen(); x++) {
-                waveGrid_[y][x]->reset();
+                waveGrid_[y][x]->reset(*rules_);
             }
         }
     }

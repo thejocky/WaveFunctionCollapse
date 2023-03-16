@@ -70,7 +70,7 @@ namespace wfc {
 
         bool collapsed() {return collapsed_;}
 
-        void reset();
+        void reset(const input::RuleSet &rules);
 
         double updateEntropy(const input::RuleSet &rules);
         double entropy() {return entropy_;}
