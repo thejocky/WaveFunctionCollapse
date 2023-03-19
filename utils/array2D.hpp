@@ -27,7 +27,7 @@ template <typename T> class Array2D {
         return tmp;
     }
 
-    T* operator[](size_t index) {
+    inline T* operator[](size_t index) {
         return data_ + (index*xSize_);
     }
 

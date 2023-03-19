@@ -73,7 +73,7 @@ namespace wfc {
         void reset(const input::RuleSet &rules);
 
         double updateEntropy(const input::RuleSet &rules);
-        double entropy() {return entropy_;}
+        inline double entropy() {return entropy_;}
 
 
         void collapse(const input::RuleSet &rules, Coords position);

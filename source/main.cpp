@@ -1,7 +1,7 @@
 #include <wfc.hpp>
 
 #include <iostream>
-#include<windows.h>
+// #include<windows.h>
 
 int main () {
 
@@ -18,33 +18,33 @@ int main () {
     ruleBuilder.addImage("../test_files/input_2.png", imageLoader);
     
     std::cout << "Creating wave\n";
-    wfc::Wave wave(500, 500);
+    wfc::Wave wave(100, 100);
     wave.initialize(ruleBuilder.referenceRuleSet());
 // std::string dummy;
-    while (!wave.collapsed()) {
-        for (int i = 0; i < 50; i++) {
-            // std::cout << "collapsing lowest entropy\n";
-            wave.collapseLowestEntropy();
-        }
-        std::cout << "Saving as image\n";
-        imageLoader.saveAsImage(wave, "../test_files/output1.png");
-        // std::cin >> dummy;
-        // Sleep(10);
+    // while (!wave.collapsed()) {
+    //     for (int i = 0; i < 50; i++) {
+    //         // std::cout << "collapsing lowest entropy\n";
+    //         wave.collapseLowestEntropy();
+    //     }
+    //     std::cout << "Saving as image\n";
+    //     imageLoader.saveAsImage(wave, "../test_files/output1.png");
+    //     // std::cin >> dummy;
+    //     // Sleep(10);
 
-    }
-    wave.printWave();
-    std::cout << "green rule down for sky: " << ruleBuilder.referenceRuleSet()->getRule(6, wfc::WaveDirection::RIGHT).bit(0) << '\n'; 
-    std::cout << "Saving as image\n";
-        imageLoader.saveAsImage(wave, "../test_files/output1.png");
+    // }
+    // wave.printWave();
+    // std::cout << "green rule down for sky: " << ruleBuilder.referenceRuleSet()->getRule(6, wfc::WaveDirection::RIGHT).bit(0) << '\n'; 
+    // std::cout << "Saving as image\n";
+    //     imageLoader.saveAsImage(wave, "../test_files/output1.png");
 
     // input::WaveGrid* 
     // std::cout << "collapsing wave\n";
     // for (int i = 1; i < 10; i++) {
-    //     std::cout << "collapsing iteration\n";
-    //     wave.collapse();
-    //     std::cout << "converting to image\n";
-    //     finalImages[i] = imageLoader.convertToImage(wave);
-    //     std::cout << "reseting\n";
+        // std::cout << "collapsing iteration\n";
+        wave.collapse();
+        // std::cout << "converting to image\n";
+        // finalImages[i] = imageLoader.convertToImage(wave);
+        // std::cout << "reseting\n";
     //     wave.reset();
     // }
 
@@ -67,6 +67,7 @@ int main () {
     //     imageLoader.saveAsImage(finalImages[i], 20, 20, outputFiles[i]);
     // }
     
+    imageLoader.saveAsImage(wave, "../test_files/output1.png");
 
     std::cout << "num states: " << ruleBuilder.referenceRuleSet()->getRule(0, wfc::WaveDirection::DOWN).size() << '\n';
 
