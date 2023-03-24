@@ -39,16 +39,16 @@ int main () {
 
     // input::WaveGrid* 
     // std::cout << "collapsing wave\n";
-    // for (int i = 1; i < 10; i++) {
+    // for (int i = 0; i < 10; i++) {
         // std::cout << "collapsing iteration\n";
         wave.collapse();
         // std::cout << "converting to image\n";
         // finalImages[i] = imageLoader.convertToImage(wave);
         // std::cout << "reseting\n";
-    //     wave.reset();
+        // wave.reset();
     // }
 
-    // std::cout << "saving images\n";
+    // // std::cout << "saving images\n";
 
     // const char *outputFiles[10] = {
     //     "../test_files/output1.png",
@@ -63,8 +63,8 @@ int main () {
     //     "../test_files/output10.png"
     // };
 
-    // for (int i = 1; i < 10; i++) {
-    //     imageLoader.saveAsImage(finalImages[i], 20, 20, outputFiles[i]);
+    // for (int i = 0; i < 10; i++) {
+    //     imageLoader.saveAsImage(finalImages[i], 100, 100, outputFiles[i]);
     // }
     
     imageLoader.saveAsImage(wave, "../test_files/output1.png");

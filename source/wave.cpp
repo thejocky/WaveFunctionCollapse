@@ -10,9 +10,9 @@
 
 namespace wfc {
 
-    Tile::Tile(const input::RuleSet &rules, int* propagations_TMP) :
+    Tile::Tile(const input::RuleSet &rules) :
         states_(rules.numStates(), true),
-        collapsed_(false), finalState_(false), propagations_TMP_(propagations_TMP)
+        collapsed_(false), finalState_(false)
     {
         updateEntropy(rules);
     }
@@ -155,7 +155,6 @@ namespace wfc {
                                                 rules, ruleLeft, queue, WaveDirection::LEFT);
         
         
-        (*propagations_TMP_)--;
     }
 
     size_t Tile::finalState() {
@@ -177,14 +176,9 @@ namespace wfc {
 
 
     Wave::Wave(size_t width, size_t height) :
-        waveGrid_(height, width), collapsed_(false), initialized_(false), propagations_TMP_(0)
+        waveGrid_(height, width), collapsed_(false), initialized_(false)
     {
         srand(time(0));
-        // for (int y = 0; y < waveGrid_.yLen(); y++) {
-        //     for (int x = 0; x < waveGrid_.xLen(); x++) {
-        //         waveGrid_[y][x] = new Tile(states, *rules);
-        //     }
-        // }
     }
 
     // Builds wave grid based on provided rules
@@ -195,7 +189,7 @@ namespace wfc {
         }
         for (int y = 0; y < waveGrid_.yLen(); y++) {
             for (int x = 0; x < waveGrid_.xLen(); x++) {
-                waveGrid_[y][x] = new Tile(*rules, &propagations_TMP_);
+                waveGrid_[y][x] = new Tile(*rules);
             }
         }
         rules_ = rules;
@@ -245,24 +239,11 @@ namespace wfc {
 
     // collapse lowest entropy tile until full grid is collapsed or collision occurs
     bool Wave::collapse() {
-        // std::cout << "wave grid size: " << waveGrid_[0][0] << '\n';
         Tile::propagate({0,0}, waveGrid_, *rules_);
-        // std::cout << "finished initial propagation\n";
-        // printWave();
-        // std::string dummy;
-        // std::cin >> dummy;
         if (collapsed_) return false;
-        // std::cout << "getting entropy\n";
-        // location = lowestEntropy();
         while (!collapsed_) {
             collapseLowestEntropy();
-        //     // std::cout << "collapsing\n";
-        //     collapseTile(location);
-        // // std::cout << "getting entropy\n";
-
-        //     location = lowestEntropy();
         }
-        // printWave();
 
         return true;
     }
@@ -300,52 +281,3 @@ namespace wfc {
     }   
 
 }
-
-
-// int main() {
-//     // std::cout << "starting main\n";
-//     // wfc::input::ImageLoader loader;
-//     // wfc::input::RuleSet rules(80);
-//     // if (!rules.addImage("../test_files/grid_test.png", loader)) return 1;
-//     // std::cout << "Loaded Image\n";
-
-
-//     // int width, height, nrChannels;
-//     // unsigned char* data;
-
-//     // for (int state = 0; state < 6; state++) {
-//     //     for (int i = 0; i < rules.getRule(state, wfc::UP).size(); i++)
-//     //         std::cout << rules.getRule(state, wfc::UP).bit(i); 
-//     //     std::cout <<  " : ";
-//     //     for (int i = 0; i < rules.getRule(state, wfc::DOWN).size(); i++)
-//     //         std::cout << rules.getRule(state, wfc::DOWN).bit(i); 
-//     //     std::cout <<  " : ";
-//     //     for (int i = 0; i < rules.getRule(state, wfc::LEFT).size(); i++)
-//     //         std::cout << rules.getRule(state, wfc::LEFT).bit(i); 
-//     //     std::cout <<  " : ";
-//     //     for (int i = 0; i < rules.getRule(state, wfc::RIGHT).size(); i++)
-//     //         std::cout << rules.getRule(state, wfc::RIGHT).bit(i); 
-//     //     std::cout <<  "\n";
-//     // }
-
-//     // data = stbi_load(path, &width, &height, &nrChannels, 0);
-//     // if (!data) {std::cerr << "ERRROR OPENING IMAGE: " << path << "\n"; return false;}
-//     // auto returnVal = addImageData(data, width, height, nrChannels, loader);
-//     // delete[] data;
-
-//     // for (int i = 0; i < rules.getStates(); i++) {
-//     //     std::cout << ", " << rules.getWeight(i);
-//     // }
-
-//     // wfc::Wave wave(100, 100, 80, &rules);
-//     // std::cout << "created wave\n";
-
-//     // wave.collapse();
-//     // std::cout << "collapsed wave\n";
-
-//     // wfc::input::WaveGrid *grid = wave.saveToWaveGrid(); 
-//     // std::cout << "saved to wavegrid\n";
-//     // // std::cout << grid << "\n";
-//     // loader.saveAsImage(grid, "../test_files/output_2.png");
-
-// }
