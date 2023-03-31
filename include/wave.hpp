@@ -15,6 +15,7 @@ namespace wfc {
 #include <cstddef>
 #include <bitset>
 #include <forward_list>
+#include <list>
 #include <stdexcept>
 
 #include <wave_input_data.hpp>
@@ -101,7 +102,7 @@ namespace wfc {
         Array2D<Tile*> waveGrid_;
         bool initialized_; // If waveGrid has been populated with Tiles
 
-        std::forward_list<Tile*> entropySorted_; // Tiles in grid sorted by entropy 
+        std::list<std::forward_list<Tile*>> entropySorted_; // Tiles in grid sorted by entropy 
         bool collapsed_; // If the wave is in a collapsed state
         
         const input::RuleSet *rules_;
